@@ -3,6 +3,6 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Auth::routes();
+Auth::routes(['verify' => false]);
 
 Route::get('/{any}', 'AppController')->where('any', '.*');
