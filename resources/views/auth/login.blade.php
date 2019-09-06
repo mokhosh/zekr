@@ -8,7 +8,7 @@
             @csrf
 
             <div class="relative">
-                <label for="email" class="uppercase text-blue-500 text-xs font-bold absolute pl-3 pt-2">{{ __('auth.email') }}</label>
+                <label for="email" class="uppercase text-blue-500 text-xs font-bold absolute ltr:pl-3 rtl:pr-3 pt-2">{{ __('auth.email') }}</label>
 
                 <div class="col-md-6">
                     <input id="email" type="email" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus
@@ -22,7 +22,7 @@
             </div>
 
             <div class="relative pt-3">
-                <label for="password" class="uppercase text-blue-500 text-xs font-bold absolute pl-3 pt-2">{{ __('auth.password') }}</label>
+                <label for="password" class="uppercase text-blue-500 text-xs font-bold absolute ltr:pl-3 rtl:pr-3 pt-2">{{ __('auth.password') }}</label>
 
                 <div class="col-md-6">
                     <input id="password" type="password" name="password" required autocomplete="current-password"
@@ -43,7 +43,7 @@
                 </label>
             </div>
             <div class="pt-8">
-                <button type="submit" class="uppercase rounded font-bold text-blue-800 w-full py-2 px-3 text-left bg-gray-400">
+                <button type="submit" class="uppercase rounded font-bold text-blue-800 w-full py-2 px-3 ltr:text-left rtl:text-right bg-gray-400">
                     {{ __('auth.login') }}
                 </button>
             </div>
