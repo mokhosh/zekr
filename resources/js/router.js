@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import ExampleComponent from "./components/ExampleComponent";
+import ExampleComponent from "./components/QuranViewer";
 
 Vue.use(VueRouter);
 
