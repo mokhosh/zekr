@@ -1,7 +1,14 @@
-@tailwind base;
+/*@tailwind base;
 @tailwind components;
-@tailwind utilities;
+@tailwind utilities;*/
+
+@font-face {
+    font-family:'Bustani';
+    src: url('/fonts/bustani.otf') format('opentype');
+    font-style: normal;
+    font-weight: normal;
+}
 
 body {
-    font-family: 'Amiri', sans-serif;
+    font-family: 'Bustani', sans-serif;
 }

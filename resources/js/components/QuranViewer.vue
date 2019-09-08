@@ -1,8 +1,26 @@
 <template>
-    <div>
-        <div>صفحه {{ page.id }}</div>
+    <div class="quran-viewer">
+        <div class="navigation">
+            <div><button @click="loadPage(currentPageNumber - 1)">قبل</button></div>
+            <div v-show="isSelecting">
+                <input
+                    v-model="currentPageNumber"
+                    @change="loadPage(currentPageNumber)"
+                    @blur="isSelecting = false"
+                    ref="pageNumberInput"
+                    id="pageNumberInput"
+                >
+            </div>
+            <div v-show="! isSelecting" @click="startSelecting">صفحه {{ currentPageNumber | arabic }}</div>
+            <div><button @click="loadPage(currentPageNumber + 1)">بعد</button></div>
+        </div>
+
         <div class="mushaf">
-            <span v-for="verse in page.verses">{{ verse.texts[0].text }} <span class="verse_number">({{ verse.number }})</span> </span>
+            <span v-for="verse in page.verses">
+                <span v-if="verse.prostration_type" class="prostration_mark">&#x06E9;</span>
+                <span v-html="verse.texts[corpusId].text"></span>
+                <span class="verse_number">{{ verse.number | arabic | reverse }}&#x06DD;</span>
+            </span>
         </div>
     </div>
 </template>
@@ -14,24 +32,78 @@
         data () {
             return {
                 page: {},
+                currentPageNumber: 1,
+                isSelecting: false,
+                corpusId: 2
             }
         },
         mounted() {
-            axios.get('/api/quran?page_number=30')
-                .then(result => { this.page = result.data })
-                .catch(e => console.log(e))
+            if (window.localStorage.currentPageNumber)
+                this.currentPageNumber = window.localStorage.currentPageNumber;
+            this.loadPage(this.currentPageNumber);
+        },
+        methods: {
+            loadPage (page_number) {
+                if (page_number > 0 && page_number <= 604) {
+                    axios.get('/api/quran', { params: {page_number} })
+                        .then(result => {
+                            this.page = result.data;
+                            this.currentPageNumber = result.data.id;
+                            window.localStorage.currentPageNumber = this.currentPageNumber;
+                        })
+                        .catch(e => console.log(e));
+                }
+            },
+            startSelecting () {
+                this.isSelecting = true;
+                this.$nextTick(() => {
+                    this.$refs.pageNumberInput.focus();
+                    this.$refs.pageNumberInput.select();
+                });
+            }
+        },
+        filters: {
+            arabic (value) {
+                if (!value) return '';
+                value = value.toString();
+                return value.replace(/\d/g, d => String.fromCharCode('0x066'+d));
+            },
+            reverse (value) {
+                if (!value) return '';
+                value = value.toString();
+                return value.split('').reverse().join('');
+            }
         }
     }
 </script>
 
 <style scoped>
+    .quran-viewer {
+        width: 1000px;
+        margin: 0 auto;
+    }
     .mushaf {
         line-height: 2;
         font-size: 2em;
         text-align: justify;
         text-align-last: center;
+
+        font-feature-settings: "ss12";
+        width: 1000px;
     }
     .verse_number {
-        color: #ed8936;
+        color: #3490dc;
+    }
+    .prostration_mark {
+        color: #e3342f;
+    }
+    .navigation {
+        display: flex;
+        justify-content: space-around;
+        width: 200px;
+        margin: 0 auto;
+    }
+    #pageNumberInput {
+        width: 3em;
     }
 </style>

@@ -1871,21 +1871,80 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      page: {}
+      page: {},
+      currentPageNumber: 1,
+      isSelecting: false,
+      corpusId: 2
     };
   },
   mounted: function mounted() {
-    var _this = this;
+    if (window.localStorage.currentPageNumber) this.currentPageNumber = window.localStorage.currentPageNumber;
+    this.loadPage(this.currentPageNumber);
+  },
+  methods: {
+    loadPage: function loadPage(page_number) {
+      var _this = this;
 
-    axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('/api/quran?page_number=30').then(function (result) {
-      _this.page = result.data;
-    })["catch"](function (e) {
-      return console.log(e);
-    });
+      if (page_number > 0 && page_number <= 604) {
+        axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('/api/quran', {
+          params: {
+            page_number: page_number
+          }
+        }).then(function (result) {
+          _this.page = result.data;
+          _this.currentPageNumber = result.data.id;
+          window.localStorage.currentPageNumber = _this.currentPageNumber;
+        })["catch"](function (e) {
+          return console.log(e);
+        });
+      }
+    },
+    startSelecting: function startSelecting() {
+      var _this2 = this;
+
+      this.isSelecting = true;
+      this.$nextTick(function () {
+        _this2.$refs.pageNumberInput.focus();
+
+        _this2.$refs.pageNumberInput.select();
+      });
+    }
+  },
+  filters: {
+    arabic: function arabic(value) {
+      if (!value) return '';
+      value = value.toString();
+      return value.replace(/\d/g, function (d) {
+        return String.fromCharCode('0x066' + d);
+      });
+    },
+    reverse: function reverse(value) {
+      if (!value) return '';
+      value = value.toString();
+      return value.split('').reverse().join('');
+    }
   }
 });
 
@@ -1903,7 +1962,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".mushaf[data-v-102119d2] {\n  line-height: 2;\n  font-size: 2em;\n  text-align: justify;\n  -moz-text-align-last: center;\n       text-align-last: center;\n}\n.verse_number[data-v-102119d2] {\n  color: #ed8936;\n}\n", ""]);
+exports.push([module.i, ".quran-viewer[data-v-102119d2] {\n  width: 1000px;\n  margin: 0 auto;\n}\n.mushaf[data-v-102119d2] {\n  line-height: 2;\n  font-size: 2em;\n  text-align: justify;\n  -moz-text-align-last: center;\n       text-align-last: center;\n  font-feature-settings: \"ss12\";\n  width: 1000px;\n}\n.verse_number[data-v-102119d2] {\n  color: #3490dc;\n}\n.prostration_mark[data-v-102119d2] {\n  color: #e3342f;\n}\n.navigation[data-v-102119d2] {\n  display: flex;\n  justify-content: space-around;\n  width: 200px;\n  margin: 0 auto;\n}\n#pageNumberInput[data-v-102119d2] {\n  width: 3em;\n}\n", ""]);
 
 // exports
 
@@ -3069,17 +3128,113 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", [
-    _c("div", [_vm._v("صفحه " + _vm._s(_vm.page.id))]),
+  return _c("div", { staticClass: "quran-viewer" }, [
+    _c("div", { staticClass: "navigation" }, [
+      _c("div", [
+        _c(
+          "button",
+          {
+            on: {
+              click: function($event) {
+                return _vm.loadPage(_vm.currentPageNumber - 1)
+              }
+            }
+          },
+          [_vm._v("قبل")]
+        )
+      ]),
+      _vm._v(" "),
+      _c(
+        "div",
+        {
+          directives: [
+            {
+              name: "show",
+              rawName: "v-show",
+              value: _vm.isSelecting,
+              expression: "isSelecting"
+            }
+          ]
+        },
+        [
+          _c("input", {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.currentPageNumber,
+                expression: "currentPageNumber"
+              }
+            ],
+            ref: "pageNumberInput",
+            attrs: { id: "pageNumberInput" },
+            domProps: { value: _vm.currentPageNumber },
+            on: {
+              change: function($event) {
+                return _vm.loadPage(_vm.currentPageNumber)
+              },
+              blur: function($event) {
+                _vm.isSelecting = false
+              },
+              input: function($event) {
+                if ($event.target.composing) {
+                  return
+                }
+                _vm.currentPageNumber = $event.target.value
+              }
+            }
+          })
+        ]
+      ),
+      _vm._v(" "),
+      _c(
+        "div",
+        {
+          directives: [
+            {
+              name: "show",
+              rawName: "v-show",
+              value: !_vm.isSelecting,
+              expression: "! isSelecting"
+            }
+          ],
+          on: { click: _vm.startSelecting }
+        },
+        [_vm._v("صفحه " + _vm._s(_vm._f("arabic")(_vm.currentPageNumber)))]
+      ),
+      _vm._v(" "),
+      _c("div", [
+        _c(
+          "button",
+          {
+            on: {
+              click: function($event) {
+                return _vm.loadPage(_vm.currentPageNumber + 1)
+              }
+            }
+          },
+          [_vm._v("بعد")]
+        )
+      ])
+    ]),
     _vm._v(" "),
     _c(
       "div",
       { staticClass: "mushaf" },
       _vm._l(_vm.page.verses, function(verse) {
         return _c("span", [
-          _vm._v(_vm._s(verse.texts[0].text) + " "),
+          verse.prostration_type
+            ? _c("span", { staticClass: "prostration_mark" }, [_vm._v("۩")])
+            : _vm._e(),
+          _vm._v(" "),
+          _c("span", {
+            domProps: { innerHTML: _vm._s(verse.texts[_vm.corpusId].text) }
+          }),
+          _vm._v(" "),
           _c("span", { staticClass: "verse_number" }, [
-            _vm._v("(" + _vm._s(verse.number) + ")")
+            _vm._v(
+              _vm._s(_vm._f("reverse")(_vm._f("arabic")(verse.number))) + "۝"
+            )
           ])
         ])
       }),
