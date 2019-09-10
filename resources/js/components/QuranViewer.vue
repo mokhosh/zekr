@@ -1,18 +1,19 @@
 <template>
     <div class="quran-viewer">
         <div class="navigation">
-            <div><button @click="loadPage(currentPageNumber - 1)">قبل</button></div>
+            <div><button @click="currentPageNumber --">قبل</button></div>
             <div v-show="isSelecting">
                 <input
                     v-model="currentPageNumber"
-                    @change="loadPage(currentPageNumber)"
                     @blur="isSelecting = false"
+                    @keyup.up="currentPageNumber ++"
+                    @keyup.down="currentPageNumber --"
                     ref="pageNumberInput"
                     id="pageNumberInput"
                 >
             </div>
             <div v-show="! isSelecting" @click="startSelecting">صفحه {{ currentPageNumber | arabic }}</div>
-            <div><button @click="loadPage(currentPageNumber + 1)">بعد</button></div>
+            <div><button @click="currentPageNumber ++">بعد</button></div>
         </div>
 
         <div class="mushaf">
@@ -37,22 +38,30 @@
                 corpusId: 2
             }
         },
+        watch: {
+            currentPageNumber (val, old) {
+                if (val <= 0 || val > 604) {
+                    this.currentPageNumber = old;
+                } else {
+                    this.loadPage(val);
+                }
+            }
+        },
         mounted() {
-            if (window.localStorage.currentPageNumber)
+            if (window.localStorage.currentPageNumber) {
                 this.currentPageNumber = window.localStorage.currentPageNumber;
-            this.loadPage(this.currentPageNumber);
+            } else {
+                this.loadPage(this.currentPageNumber);
+            }
         },
         methods: {
             loadPage (page_number) {
-                if (page_number > 0 && page_number <= 604) {
-                    axios.get('/api/quran', { params: {page_number} })
-                        .then(result => {
-                            this.page = result.data;
-                            this.currentPageNumber = result.data.id;
-                            window.localStorage.currentPageNumber = this.currentPageNumber;
-                        })
-                        .catch(e => console.log(e));
-                }
+                axios.get('/api/quran', { params: {page_number} })
+                    .then(result => {
+                        this.page = result.data;
+                        window.localStorage.currentPageNumber = this.currentPageNumber;
+                    })
+                    .catch(e => console.log(e));
             },
             startSelecting () {
                 this.isSelecting = true;

@@ -1889,6 +1889,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -1899,27 +1900,36 @@ __webpack_require__.r(__webpack_exports__);
       corpusId: 2
     };
   },
+  watch: {
+    currentPageNumber: function currentPageNumber(val, old) {
+      if (val <= 0 || val > 604) {
+        this.currentPageNumber = old;
+      } else {
+        this.loadPage(val);
+      }
+    }
+  },
   mounted: function mounted() {
-    if (window.localStorage.currentPageNumber) this.currentPageNumber = window.localStorage.currentPageNumber;
-    this.loadPage(this.currentPageNumber);
+    if (window.localStorage.currentPageNumber) {
+      this.currentPageNumber = window.localStorage.currentPageNumber;
+    } else {
+      this.loadPage(this.currentPageNumber);
+    }
   },
   methods: {
     loadPage: function loadPage(page_number) {
       var _this = this;
 
-      if (page_number > 0 && page_number <= 604) {
-        axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('/api/quran', {
-          params: {
-            page_number: page_number
-          }
-        }).then(function (result) {
-          _this.page = result.data;
-          _this.currentPageNumber = result.data.id;
-          window.localStorage.currentPageNumber = _this.currentPageNumber;
-        })["catch"](function (e) {
-          return console.log(e);
-        });
-      }
+      axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('/api/quran', {
+        params: {
+          page_number: page_number
+        }
+      }).then(function (result) {
+        _this.page = result.data;
+        window.localStorage.currentPageNumber = _this.currentPageNumber;
+      })["catch"](function (e) {
+        return console.log(e);
+      });
     },
     startSelecting: function startSelecting() {
       var _this2 = this;
@@ -3136,7 +3146,7 @@ var render = function() {
           {
             on: {
               click: function($event) {
-                return _vm.loadPage(_vm.currentPageNumber - 1)
+                _vm.currentPageNumber--
               }
             }
           },
@@ -3170,12 +3180,35 @@ var render = function() {
             attrs: { id: "pageNumberInput" },
             domProps: { value: _vm.currentPageNumber },
             on: {
-              change: function($event) {
-                return _vm.loadPage(_vm.currentPageNumber)
-              },
               blur: function($event) {
                 _vm.isSelecting = false
               },
+              keyup: [
+                function($event) {
+                  if (
+                    !$event.type.indexOf("key") &&
+                    _vm._k($event.keyCode, "up", 38, $event.key, [
+                      "Up",
+                      "ArrowUp"
+                    ])
+                  ) {
+                    return null
+                  }
+                  _vm.currentPageNumber++
+                },
+                function($event) {
+                  if (
+                    !$event.type.indexOf("key") &&
+                    _vm._k($event.keyCode, "down", 40, $event.key, [
+                      "Down",
+                      "ArrowDown"
+                    ])
+                  ) {
+                    return null
+                  }
+                  _vm.currentPageNumber--
+                }
+              ],
               input: function($event) {
                 if ($event.target.composing) {
                   return
@@ -3209,7 +3242,7 @@ var render = function() {
           {
             on: {
               click: function($event) {
-                return _vm.loadPage(_vm.currentPageNumber + 1)
+                _vm.currentPageNumber++
               }
             }
           },
