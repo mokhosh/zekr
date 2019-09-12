@@ -3519,6 +3519,11 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -3984,6 +3989,98 @@ __webpack_require__.r(__webpack_exports__);
         id: 114,
         name: "الناس",
         page: 604
+      }],
+      part: 1,
+      parts: [{
+        id: 30,
+        page: 582
+      }, {
+        id: 29,
+        page: 562
+      }, {
+        id: 28,
+        page: 542
+      }, {
+        id: 27,
+        page: 522
+      }, {
+        id: 26,
+        page: 502
+      }, {
+        id: 25,
+        page: 482
+      }, {
+        id: 24,
+        page: 462
+      }, {
+        id: 23,
+        page: 442
+      }, {
+        id: 22,
+        page: 422
+      }, {
+        id: 21,
+        page: 402
+      }, {
+        id: 20,
+        page: 382
+      }, {
+        id: 19,
+        page: 362
+      }, {
+        id: 18,
+        page: 342
+      }, {
+        id: 17,
+        page: 322
+      }, {
+        id: 16,
+        page: 302
+      }, {
+        id: 15,
+        page: 282
+      }, {
+        id: 14,
+        page: 262
+      }, {
+        id: 13,
+        page: 242
+      }, {
+        id: 12,
+        page: 222
+      }, {
+        id: 11,
+        page: 201
+      }, {
+        id: 10,
+        page: 182
+      }, {
+        id: 9,
+        page: 162
+      }, {
+        id: 8,
+        page: 142
+      }, {
+        id: 7,
+        page: 121
+      }, {
+        id: 6,
+        page: 102
+      }, {
+        id: 5,
+        page: 82
+      }, {
+        id: 4,
+        page: 62
+      }, {
+        id: 3,
+        page: 42
+      }, {
+        id: 2,
+        page: 22
+      }, {
+        id: 1,
+        page: 1
       }]
     };
   },
@@ -4016,6 +4113,9 @@ __webpack_require__.r(__webpack_exports__);
         _this.page = result.data;
         _this.isLoading = false;
         _this.chapter = _this.page.verses[0].chapter_id;
+        _this.part = _this.parts.find(function (el) {
+          return el.page <= _this.currentPageNumber;
+        }).id;
         window.localStorage.currentPageNumber = _this.currentPageNumber;
       })["catch"](function (e) {
         return _this.$message.error(e);
@@ -4026,6 +4126,13 @@ __webpack_require__.r(__webpack_exports__);
 
       this.currentPageNumber = this.chapters.find(function (el) {
         return el.id === _this2.chapter;
+      }).page;
+    },
+    loadPart: function loadPart() {
+      var _this3 = this;
+
+      this.currentPageNumber = this.parts.find(function (el) {
+        return el.id === _this3.part;
       }).page;
     }
   },
@@ -64644,6 +64751,25 @@ var render = function() {
         },
         [
           _c(
+            "el-tooltip",
+            { attrs: { content: "جزء", placement: "bottom" } },
+            [
+              _c("el-input-number", {
+                attrs: { min: 1, max: 30, "step-strictly": "", size: "mini" },
+                on: { change: _vm.loadPart },
+                model: {
+                  value: _vm.part,
+                  callback: function($$v) {
+                    _vm.part = $$v
+                  },
+                  expression: "part"
+                }
+              })
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
             "el-select",
             {
               attrs: { size: "mini", filterable: "" },
@@ -64665,16 +64791,23 @@ var render = function() {
             1
           ),
           _vm._v(" "),
-          _c("el-input-number", {
-            attrs: { min: 1, max: 604, "step-strictly": "", size: "mini" },
-            model: {
-              value: _vm.currentPageNumber,
-              callback: function($$v) {
-                _vm.currentPageNumber = $$v
-              },
-              expression: "currentPageNumber"
-            }
-          })
+          _c(
+            "el-tooltip",
+            { attrs: { content: "صفحه", placement: "bottom" } },
+            [
+              _c("el-input-number", {
+                attrs: { min: 1, max: 604, "step-strictly": "", size: "mini" },
+                model: {
+                  value: _vm.currentPageNumber,
+                  callback: function($$v) {
+                    _vm.currentPageNumber = $$v
+                  },
+                  expression: "currentPageNumber"
+                }
+              })
+            ],
+            1
+          )
         ],
         1
       ),
