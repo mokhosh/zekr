@@ -1,28 +1,18 @@
 <template>
-    <div class="quran-viewer">
-        <div class="navigation">
-            <div><button @click="currentPageNumber --">قبل</button></div>
-            <div v-show="isSelecting">
-                <input
-                    v-model="currentPageNumber"
-                    @blur="isSelecting = false"
-                    @keyup.up="currentPageNumber ++"
-                    @keyup.down="currentPageNumber --"
-                    ref="pageNumberInput"
-                    id="pageNumberInput"
-                >
-            </div>
-            <div v-show="! isSelecting" @click="startSelecting">صفحه {{ currentPageNumber | arabic }}</div>
-            <div><button @click="currentPageNumber ++">بعد</button></div>
-        </div>
+    <div>
+        <el-row type="flex" justify="center" class="navigation">
+            <el-input-number v-model="currentPageNumber" :min="1" :max="604" step-strictly="true" size="mini"></el-input-number>
+        </el-row>
 
-        <div class="mushaf">
-            <span v-for="verse in page.verses">
-                <span v-if="verse.prostration_type" class="prostration_mark">&#x06E9;</span>
-                <span v-html="verse.texts[corpusId].text"></span>
-                <span class="verse_number">{{ verse.number | arabic | reverse }}&#x06DD;</span>
-            </span>
-        </div>
+        <el-row type="flex" justify="center">
+            <el-col :lg="12" class="mushaf" v-loading="isLoading">
+                <span v-for="verse in page.verses">
+                    <span v-if="verse.prostration_type" class="prostration_mark">&#x06E9;</span>
+                    <span v-html="verse.texts[corpusId].text"></span>
+                    <span class="verse_number">{{ verse.number | arabic | reverse }}&#x06DD;</span>
+                </span>
+            </el-col>
+        </el-row>
     </div>
 </template>
 
@@ -34,8 +24,8 @@
             return {
                 page: {},
                 currentPageNumber: 1,
-                isSelecting: false,
-                corpusId: 2
+                corpusId: 2,
+                isLoading: true,
             }
         },
         watch: {
@@ -43,6 +33,7 @@
                 if (val <= 0 || val > 604) {
                     this.currentPageNumber = old;
                 } else {
+                    this.isLoading = true;
                     this.loadPage(val);
                 }
             }
@@ -60,15 +51,9 @@
                     .then(result => {
                         this.page = result.data;
                         window.localStorage.currentPageNumber = this.currentPageNumber;
+                        this.isLoading = false;
                     })
-                    .catch(e => console.log(e));
-            },
-            startSelecting () {
-                this.isSelecting = true;
-                this.$nextTick(() => {
-                    this.$refs.pageNumberInput.focus();
-                    this.$refs.pageNumberInput.select();
-                });
+                    .catch(e => this.$message.error(e));
             }
         },
         filters: {
@@ -87,32 +72,24 @@
 </script>
 
 <style scoped>
-    .quran-viewer {
-        width: 1000px;
-        margin: 0 auto;
-    }
     .mushaf {
+        font-family: 'Bustani', sans-serif;
+
         line-height: 2;
         font-size: 2em;
         text-align: justify;
         text-align-last: center;
 
         font-feature-settings: "ss12";
-        width: 1000px;
+        padding: .5em;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: #f6f6f6;
     }
     .verse_number {
         color: #3490dc;
     }
     .prostration_mark {
         color: #e3342f;
-    }
-    .navigation {
-        display: flex;
-        justify-content: space-around;
-        width: 200px;
-        margin: 0 auto;
-    }
-    #pageNumberInput {
-        width: 3em;
     }
 </style>
