@@ -12,4 +12,9 @@ class Chapter extends Model
     {
         return $this->hasMany(Verse::class);
     }
+
+    public function names()
+    {
+        return $this->hasMany(ChapterName::class);
+    }
 }
