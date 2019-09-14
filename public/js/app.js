@@ -4085,14 +4085,7 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   watch: {
-    currentPageNumber: function currentPageNumber(val, old) {
-      if (val <= 0 || val > 604) {
-        this.currentPageNumber = old;
-      } else {
-        this.isLoading = true;
-        this.loadPage(val);
-      }
-    }
+    currentPageNumber: 'loadPage'
   },
   mounted: function mounted() {
     if (window.localStorage.currentPageNumber) {
@@ -4105,6 +4098,7 @@ __webpack_require__.r(__webpack_exports__);
     loadPage: function loadPage(page_number) {
       var _this = this;
 
+      this.isLoading = true;
       axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('/api/quran', {
         params: {
           page_number: page_number

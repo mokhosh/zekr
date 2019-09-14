@@ -46,14 +46,7 @@
             }
         },
         watch: {
-            currentPageNumber (val, old) {
-                if (val <= 0 || val > 604) {
-                    this.currentPageNumber = old;
-                } else {
-                    this.isLoading = true;
-                    this.loadPage(val);
-                }
-            }
+            currentPageNumber: 'loadPage'
         },
         mounted() {
             if (window.localStorage.currentPageNumber) {
@@ -64,6 +57,7 @@
         },
         methods: {
             loadPage (page_number) {
+                this.isLoading = true;
                 axios.get('/api/quran', { params: {page_number} })
                     .then(result => {
                         this.page = result.data;
