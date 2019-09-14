@@ -20,7 +20,11 @@
         <el-row type="flex" justify="center">
             <el-col :lg="12" class="mushaf" v-loading="isLoading">
                 <div v-for="verse in page.verses" class="verse">
-                    <div v-if="verse.number === 1" v-text="chapters[verse.chapter_id - 1].name" class="chapter-title"></div>
+                    <div v-if="verse.number === 1" class="chapter-title">
+                        <div class="revelation-location">{{ chapters[verse.chapter_id - 1].location}}</div>
+                        {{ chapters[verse.chapter_id - 1].name }}
+                        <div class="chapter-number">{{ verse.chapter_id | arabic }}</div>
+                    </div>
                     <span v-if="verse.prostration_type" class="prostration-mark">&#x06E9;</span>
                     <span v-html="verse.texts[corpusId].text"></span>
                     <span class="verse-number">{{ verse.number | arabic | reverse }}&#x06DD;</span>
@@ -116,7 +120,18 @@
     .chapter-title {
         border-right: 60px dotted #ddd;
         border-left: 60px dotted #ddd;
+        position: relative;
     }
+    .revelation-location, .chapter-number {
+        position: absolute;
+        top: 10px;
+        font-size: .7em;
+        width: 48px;
+        text-align: center;
+        color: #636b6f;
+    }
+    .revelation-location { left: -55px }
+    .chapter-number { right: -55px }
     .prostration-mark {
         color: #e3342f;
     }
