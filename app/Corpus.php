@@ -12,4 +12,18 @@ class Corpus extends Model
     {
         return $this->hasMany(VerseText::class);
     }
+
+    public function language()
+    {
+        return $this->belongsTo(Language::class);
+    }
+
+    public function toArray()
+    {
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'type' => $this->type,
+        ] + ($this->relationLoaded('language') ? ['language' => $this->language] : []);
+    }
 }

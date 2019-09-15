@@ -3530,6 +3530,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -3537,18 +3545,21 @@ __webpack_require__.r(__webpack_exports__);
     return {
       page: {},
       currentPageNumber: 1,
-      corpusId: 2,
+      corpus: 2,
       isLoading: true,
       chapter: 1,
       part: 1,
       chapters: _meta_js__WEBPACK_IMPORTED_MODULE_1__["chapters"],
-      parts: _meta_js__WEBPACK_IMPORTED_MODULE_1__["parts"]
+      parts: _meta_js__WEBPACK_IMPORTED_MODULE_1__["parts"],
+      corpuses: []
     };
   },
   watch: {
     currentPageNumber: 'loadPage'
   },
   mounted: function mounted() {
+    this.loadCorpuses();
+
     if (window.localStorage.currentPageNumber) {
       this.currentPageNumber = window.localStorage.currentPageNumber;
     } else {
@@ -3556,8 +3567,17 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   methods: {
-    loadPage: function loadPage(page_number) {
+    loadCorpuses: function loadCorpuses() {
       var _this = this;
+
+      axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('api/corpuses').then(function (result) {
+        _this.corpuses = result.data;
+      })["catch"](function (e) {
+        return console.log(e);
+      });
+    },
+    loadPage: function loadPage(page_number) {
+      var _this2 = this;
 
       this.isLoading = true;
       axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('/api/quran', {
@@ -3565,29 +3585,29 @@ __webpack_require__.r(__webpack_exports__);
           page_number: page_number
         }
       }).then(function (result) {
-        _this.page = result.data;
-        _this.isLoading = false;
-        _this.chapter = _this.page.verses[0].chapter_id;
-        _this.part = _this.parts.find(function (el) {
-          return el.page <= _this.currentPageNumber;
+        _this2.page = result.data;
+        _this2.isLoading = false;
+        _this2.chapter = _this2.page.verses[0].chapter_id;
+        _this2.part = _this2.parts.find(function (el) {
+          return el.page <= _this2.currentPageNumber;
         }).id;
-        window.localStorage.currentPageNumber = _this.currentPageNumber;
+        window.localStorage.currentPageNumber = _this2.currentPageNumber;
       })["catch"](function (e) {
-        return _this.$message.error(e);
+        return _this2.$message.error(e);
       });
     },
     loadChapter: function loadChapter() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.currentPageNumber = this.chapters.find(function (el) {
-        return el.id === _this2.chapter;
+        return el.id === _this3.chapter;
       }).page;
     },
     loadPart: function loadPart() {
-      var _this3 = this;
+      var _this4 = this;
 
       this.currentPageNumber = this.parts.find(function (el) {
-        return el.id === _this3.part;
+        return el.id === _this4.part;
       }).page;
     }
   },
@@ -64206,6 +64226,27 @@ var render = function() {
         },
         [
           _c(
+            "el-select",
+            {
+              attrs: { size: "mini", filterable: "" },
+              model: {
+                value: _vm.corpus,
+                callback: function($$v) {
+                  _vm.corpus = $$v
+                },
+                expression: "corpus"
+              }
+            },
+            _vm._l(_vm.corpuses, function(corpus) {
+              return _c("el-option", {
+                key: corpus.id,
+                attrs: { label: corpus.title, value: corpus.id - 1 }
+              })
+            }),
+            1
+          ),
+          _vm._v(" "),
+          _c(
             "el-tooltip",
             { attrs: { content: "جزء", placement: "bottom" } },
             [
@@ -64286,7 +64327,7 @@ var render = function() {
               attrs: { lg: 12 }
             },
             _vm._l(_vm.page.verses, function(verse) {
-              return _c("div", { staticClass: "verse" }, [
+              return _c("div", { key: verse.id, staticClass: "verse" }, [
                 verse.number === 1
                   ? _c("div", { staticClass: "chapter-title" }, [
                       _c("div", { staticClass: "revelation-location" }, [
@@ -64312,9 +64353,7 @@ var render = function() {
                   : _vm._e(),
                 _vm._v(" "),
                 _c("span", {
-                  domProps: {
-                    innerHTML: _vm._s(verse.texts[_vm.corpusId].text)
-                  }
+                  domProps: { innerHTML: _vm._s(verse.texts[_vm.corpus].text) }
                 }),
                 _vm._v(" "),
                 _c("span", { staticClass: "verse-number" }, [

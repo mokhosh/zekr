@@ -1,6 +1,14 @@
 <template>
     <div>
         <el-row type="flex" justify="center" class="navigation">
+            <el-select v-model="corpus" size="mini" filterable>
+                <el-option
+                    v-for="corpus in corpuses"
+                    :key="corpus.id"
+                    :label="corpus.title"
+                    :value="corpus.id - 1">
+                </el-option>
+            </el-select>
             <el-tooltip content="جزء" placement="bottom">
                 <el-input-number v-model="part" :min="1" :max="30" step-strictly size="mini" @change="loadPart"></el-input-number>
             </el-tooltip>
@@ -19,14 +27,14 @@
 
         <el-row type="flex" justify="center">
             <el-col :lg="12" class="mushaf" v-loading="isLoading">
-                <div v-for="verse in page.verses" class="verse">
+                <div v-for="verse in page.verses" class="verse" :key="verse.id">
                     <div v-if="verse.number === 1" class="chapter-title">
                         <div class="revelation-location">{{ chapters[verse.chapter_id - 1].location}}</div>
                         {{ chapters[verse.chapter_id - 1].name }}
                         <div class="chapter-number">{{ verse.chapter_id | arabic }}</div>
                     </div>
                     <span v-if="verse.prostration_type" class="prostration-mark">&#x06E9;</span>
-                    <span v-html="verse.texts[corpusId].text"></span>
+                    <span v-html="verse.texts[corpus].text"></span>
                     <span class="verse-number">{{ verse.number | arabic | reverse }}&#x06DD;</span>
                 </div>
             </el-col>
@@ -43,18 +51,20 @@
             return {
                 page: {},
                 currentPageNumber: 1,
-                corpusId: 2,
+                corpus: 2,
                 isLoading: true,
                 chapter: 1,
                 part: 1,
                 chapters,
-                parts
+                parts,
+                corpuses: []
             }
         },
         watch: {
             currentPageNumber: 'loadPage'
         },
         mounted() {
+            this.loadCorpuses();
             if (window.localStorage.currentPageNumber) {
                 this.currentPageNumber = window.localStorage.currentPageNumber;
             } else {
@@ -62,6 +72,13 @@
             }
         },
         methods: {
+            loadCorpuses () {
+                axios.get('api/corpuses')
+                    .then(result => {
+                        this.corpuses = result.data;
+                    })
+                    .catch(e => console.log(e))
+            },
             loadPage (page_number) {
                 this.isLoading = true;
                 axios.get('/api/quran', { params: {page_number} })
