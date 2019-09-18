@@ -9,6 +9,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::post('login', 'AuthController@login');
+Route::post('refresh', 'AuthController@refresh');
 Route::post('register', 'AuthController@register');
 Route::middleware('auth:api')->post('logout', 'AuthController@logout');
 
