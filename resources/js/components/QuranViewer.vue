@@ -43,7 +43,6 @@
 </template>
 
 <script>
-    import axios from 'axios'
     import {parts, chapters} from '../meta.js'
 
     export default {
