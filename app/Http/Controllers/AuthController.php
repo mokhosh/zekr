@@ -84,7 +84,7 @@ class AuthController extends Controller
 
         event(new Registered($user));
 
-        return $user;
+        return response()->json(['access_token' => $user->createToken('register-token')->accessToken]);
     }
 
     public function logout()
