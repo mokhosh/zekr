@@ -1,17 +1,17 @@
+import 'vuetify/dist/vuetify.min.css';
+
 import Vue from 'vue'
+import store from './store';
 import router from './router'
-import ElementUI from 'element-ui';
-import locale from 'element-ui/lib/locale/lang/fa'
-import 'element-ui/lib/theme-chalk/index.css'
+import vuetify from './plugins/vuetify';
+import './registerServiceWorker';
 import App from './components/App'
 
 require('./bootstrap');
-Vue.use(ElementUI, { locale });
 
 const app = new Vue({
-    el: '#app',
-    components: {
-        App
-    },
-    router
-});
+    router,
+    store,
+    vuetify,
+    render: h => h(App)
+}).$mount('#app');
