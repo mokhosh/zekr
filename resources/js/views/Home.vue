@@ -1,6 +1,7 @@
 <template>
     <div>
-        <v-navigation-drawer disable-resize-watcher v-model="drawer" app clipped color="grey lighten-4" :right="$vuetify.rtl">
+        <v-navigation-drawer disable-resize-watcher v-model="drawer" app clipped color="grey lighten-4"
+                             :right="$vuetify.rtl">
             <v-list dense class="grey lighten-4">
                 <v-list-item v-if="user">
                     <v-list-item-action>
@@ -10,7 +11,15 @@
                         <v-list-item-title class="grey--text">{{ user.name }}</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
-                <v-list-item v-if="user">
+                <v-list-item @click="readingDialog = true">
+                    <v-list-item-action>
+                        <v-icon>bookmarks</v-icon>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                        <v-list-item-title class="grey--text">{{ user.reading.title }}</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
+                <v-list-item>
                     <v-list-item-content>
                         <v-autocomplete
                             :items="corpuses" color="white" item-text="title" item-value="id" dense height="20"
@@ -49,17 +58,23 @@
 
 
         <v-app-bar app dark clipped-right extended extension-height="64px" color="primary" style="z-index:0">
-            <v-spacer class="d-none d-md-block" />
+            <v-spacer class="d-none d-md-block"/>
             <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
             <v-text-field solo-inverted flat hide-details label="جستجو" prepend-inner-icon="search"></v-text-field>
-            <v-spacer class="d-none d-md-block" />
+            <v-spacer class="d-none d-md-block"/>
         </v-app-bar>
 
         <v-content>
             <v-container fluid class="grey lighten-4 fill-height">
                 <v-row justify="center">
-                    <QuranViewer :corpus="corpus" />
+                    <QuranViewer v-if="user" :corpus="corpus"
+                                 @select-reading="readingDialog = true"
+                                 :initialPageNumber="user.reading.page_id"
+                                 :title="user.reading.title"/>
                 </v-row>
+                <v-dialog v-model="readingDialog" width="500">
+                    <zekr-reading-dialog :currentReadingId="user.reading.id" @closed="readingDialog = false" />
+                </v-dialog>
             </v-container>
         </v-content>
     </div>
@@ -67,14 +82,16 @@
 
 <script>
     import QuranViewer from "../components/QuranViewer";
+    import ZekrReadingDialog from "./ZekrReadingDialog";
 
     export default {
-        mounted () {
+        mounted() {
             this.loadCorpuses();
         },
         data: () => ({
             corpuses: [],
             corpus: 3,
+            readingDialog: false,
             drawer: false,
             items: [
                 {icon: "lightbulb_outline", text: "Notes"},
@@ -98,6 +115,7 @@
             },
         },
         components: {
+            ZekrReadingDialog,
             QuranViewer
         },
         props: [

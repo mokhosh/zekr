@@ -13,4 +13,5 @@ Route::middleware('auth:api')->group(function() {
     Route::post('logout', 'AuthController@logout');
     Route::get('quran', 'QuranController@page');
     Route::get('corpuses', 'MetaController@corpuses');
+    Route::get('readings', 'ReadingController@index');
 });

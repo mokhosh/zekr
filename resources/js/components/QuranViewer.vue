@@ -1,9 +1,12 @@
 <template>
     <v-col md="8" lg="6">
         <v-card class="mx-auto" style="margin-top: -84px">
-            <!--<v-card-title>{{ chapters[chapter - 1].name }}</v-card-title>-->
+            <!--<v-card-title><v-btn>{{ title }}</v-btn></v-card-title>-->
             <v-card-text class="pt-0">
                 <v-row type="flex" justify="center" class="pt-0" gutter="10">
+                    <v-col cols="auto">
+                        <v-btn @click="$emit('select-reading')">{{ title }}</v-btn>
+                    </v-col>
                     <v-col>
                         <v-autocomplete
                             :items="chapters" color="white" item-text="name" item-value="id" dense height="20"
@@ -15,7 +18,7 @@
                 </v-row>
                 <v-row type="flex" justify="center">
                     <v-slider
-                        @change="sliderChanged" :value="currentPageNumber"
+                        @change="sliderChanged" :value="pageNumber"
                         :ticks="false" :max="604" :min="1" step="1" thumb-label="always" thumb-size="28" thumb-color="accent"
                         append-icon="navigate_before" prepend-icon="navigate_next"
                         @click:append="nextPage" @click:prepend="prevPage"/>
@@ -52,7 +55,7 @@
         data() {
             return {
                 page: {},
-                currentPageNumber: 1,
+                pageNumber: null,
                 isLoading: true,
                 chapter: 1,
                 part: 1,
@@ -61,18 +64,16 @@
             }
         },
         watch: {
-            currentPageNumber: 'loadPage'
-        },
-        mounted() {
-            if (window.localStorage.currentPageNumber) {
-                this.currentPageNumber = window.localStorage.currentPageNumber;
-            } else {
-                this.loadPage(this.currentPageNumber);
-            }
+            pageNumber: 'loadPage'
         },
         props: [
+            'initialPageNumber',
+            'title',
             'corpus'
         ],
+        mounted() {
+            this.pageNumber = this.initialPageNumber;
+        },
         methods: {
             loadPage(page_number) {
                 this.isLoading = true;
@@ -81,16 +82,15 @@
                         this.page = result.data;
                         this.isLoading = false;
                         this.chapter = this.page.verses[0].chapter_id;
-                        this.part = this.parts.find(el => el.page <= this.currentPageNumber).id;
-                        window.localStorage.currentPageNumber = this.currentPageNumber;
+                        this.part = this.parts.find(el => el.page <= this.pageNumber).id;
                     })
-                    .catch(e => this.$message.error(e));
+                    .catch(e => this.$toast.error(e));
             },
             loadChapter() {
-                this.currentPageNumber = this.chapters.find(el => el.id == this.chapter).page;
+                this.pageNumber = this.chapters.find(el => el.id == this.chapter).page;
             },
             loadPart() {
-                this.currentPageNumber = this.parts.find(el => el.id == this.part).page;
+                this.pageNumber = this.parts.find(el => el.id == this.part).page;
             },
             chapterFilter(item, queryText) {
                 const chapterName = this.simplify(item.name);
@@ -102,13 +102,13 @@
                 return str.replace('أ', 'ا').replace('إ', 'ا').replace('ي', 'ی').replace('ة', 'ه');
             },
             sliderChanged(value) {
-                this.currentPageNumber = value;
+                this.pageNumber = value;
             },
             nextPage() {
-                this.currentPageNumber = Math.min(this.currentPageNumber + 1, 604);
+                this.pageNumber = Math.min(this.pageNumber + 1, 604);
             },
             prevPage() {
-                this.currentPageNumber = Math.max(this.currentPageNumber - 1, 1);
+                this.pageNumber = Math.max(this.pageNumber - 1, 1);
             },
         },
         filters: {

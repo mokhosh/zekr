@@ -57,12 +57,15 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       page: {},
-      currentPageNumber: 1,
+      pageNumber: null,
       isLoading: true,
       chapter: 1,
       part: 1,
@@ -71,16 +74,12 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   watch: {
-    currentPageNumber: 'loadPage'
+    pageNumber: 'loadPage'
   },
+  props: ['initialPageNumber', 'title', 'corpus'],
   mounted: function mounted() {
-    if (window.localStorage.currentPageNumber) {
-      this.currentPageNumber = window.localStorage.currentPageNumber;
-    } else {
-      this.loadPage(this.currentPageNumber);
-    }
+    this.pageNumber = this.initialPageNumber;
   },
-  props: ['corpus'],
   methods: {
     loadPage: function loadPage(page_number) {
       var _this = this;
@@ -95,24 +94,23 @@ __webpack_require__.r(__webpack_exports__);
         _this.isLoading = false;
         _this.chapter = _this.page.verses[0].chapter_id;
         _this.part = _this.parts.find(function (el) {
-          return el.page <= _this.currentPageNumber;
+          return el.page <= _this.pageNumber;
         }).id;
-        window.localStorage.currentPageNumber = _this.currentPageNumber;
       })["catch"](function (e) {
-        return _this.$message.error(e);
+        return _this.$toast.error(e);
       });
     },
     loadChapter: function loadChapter() {
       var _this2 = this;
 
-      this.currentPageNumber = this.chapters.find(function (el) {
+      this.pageNumber = this.chapters.find(function (el) {
         return el.id == _this2.chapter;
       }).page;
     },
     loadPart: function loadPart() {
       var _this3 = this;
 
-      this.currentPageNumber = this.parts.find(function (el) {
+      this.pageNumber = this.parts.find(function (el) {
         return el.id == _this3.part;
       }).page;
     },
@@ -125,13 +123,13 @@ __webpack_require__.r(__webpack_exports__);
       return str.replace('أ', 'ا').replace('إ', 'ا').replace('ي', 'ی').replace('ة', 'ه');
     },
     sliderChanged: function sliderChanged(value) {
-      this.currentPageNumber = value;
+      this.pageNumber = value;
     },
     nextPage: function nextPage() {
-      this.currentPageNumber = Math.min(this.currentPageNumber + 1, 604);
+      this.pageNumber = Math.min(this.pageNumber + 1, 604);
     },
     prevPage: function prevPage() {
-      this.currentPageNumber = Math.max(this.currentPageNumber - 1, 1);
+      this.pageNumber = Math.max(this.pageNumber - 1, 1);
     }
   },
   filters: {
@@ -162,6 +160,22 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_QuranViewer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../components/QuranViewer */ "./resources/js/components/QuranViewer.vue");
+/* harmony import */ var _ZekrReadingDialog__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ZekrReadingDialog */ "./resources/js/views/ZekrReadingDialog.vue");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -230,6 +244,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     this.loadCorpuses();
@@ -238,6 +253,7 @@ __webpack_require__.r(__webpack_exports__);
     return {
       corpuses: [],
       corpus: 3,
+      readingDialog: false,
       drawer: false,
       items: [{
         icon: "lightbulb_outline",
@@ -278,9 +294,76 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   components: {
+    ZekrReadingDialog: _ZekrReadingDialog__WEBPACK_IMPORTED_MODULE_1__["default"],
     QuranViewer: _components_QuranViewer__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
   props: ['user']
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vuetify-loader/lib/loader.js!./node_modules/vue-loader/lib/index.js?!./resources/js/views/ZekrReadingDialog.vue?vue&type=script&lang=js&":
+/*!*******************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vuetify-loader/lib/loader.js!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/views/ZekrReadingDialog.vue?vue&type=script&lang=js& ***!
+  \*******************************************************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: 'zekr-reading-dialog',
+  data: function data() {
+    return {
+      readings: [],
+      selectedReading: null
+    };
+  },
+  props: ['currentReadingId'],
+  mounted: function mounted() {
+    this.loadReadings();
+    this.selectedReading = this.currentReadingId;
+  },
+  methods: {
+    loadReadings: function loadReadings() {
+      var _this = this;
+
+      axios.get('api/readings').then(function (result) {
+        _this.readings = result.data;
+      })["catch"](function (e) {
+        return console.log(e);
+      });
+    }
+  }
 });
 
 /***/ }),
@@ -419,6 +502,25 @@ var render = function() {
                 [
                   _c(
                     "v-col",
+                    { attrs: { cols: "auto" } },
+                    [
+                      _c(
+                        "v-btn",
+                        {
+                          on: {
+                            click: function($event) {
+                              return _vm.$emit("select-reading")
+                            }
+                          }
+                        },
+                        [_vm._v(_vm._s(_vm.title))]
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-col",
                     [
                       _c("v-autocomplete", {
                         attrs: {
@@ -471,7 +573,7 @@ var render = function() {
                 [
                   _c("v-slider", {
                     attrs: {
-                      value: _vm.currentPageNumber,
+                      value: _vm.pageNumber,
                       ticks: false,
                       max: 604,
                       min: 1,
@@ -666,38 +768,65 @@ var render = function() {
                   )
                 : _vm._e(),
               _vm._v(" "),
-              _vm.user
-                ? _c(
-                    "v-list-item",
+              _c(
+                "v-list-item",
+                {
+                  on: {
+                    click: function($event) {
+                      _vm.readingDialog = true
+                    }
+                  }
+                },
+                [
+                  _c(
+                    "v-list-item-action",
+                    [_c("v-icon", [_vm._v("bookmarks")])],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-item-content",
                     [
-                      _c(
-                        "v-list-item-content",
-                        [
-                          _c("v-autocomplete", {
-                            attrs: {
-                              items: _vm.corpuses,
-                              color: "white",
-                              "item-text": "title",
-                              "item-value": "id",
-                              dense: "",
-                              height: "20",
-                              label: "متن"
-                            },
-                            model: {
-                              value: _vm.corpus,
-                              callback: function($$v) {
-                                _vm.corpus = $$v
-                              },
-                              expression: "corpus"
-                            }
-                          })
-                        ],
-                        1
-                      )
+                      _c("v-list-item-title", { staticClass: "grey--text" }, [
+                        _vm._v(_vm._s(_vm.user.reading.title))
+                      ])
                     ],
                     1
                   )
-                : _vm._e(),
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-list-item",
+                [
+                  _c(
+                    "v-list-item-content",
+                    [
+                      _c("v-autocomplete", {
+                        attrs: {
+                          items: _vm.corpuses,
+                          color: "white",
+                          "item-text": "title",
+                          "item-value": "id",
+                          dense: "",
+                          height: "20",
+                          label: "متن"
+                        },
+                        model: {
+                          value: _vm.corpus,
+                          callback: function($$v) {
+                            _vm.corpus = $$v
+                          },
+                          expression: "corpus"
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
               _vm._v(" "),
               _c(
                 "v-list-item",
@@ -777,11 +906,170 @@ var render = function() {
               _c(
                 "v-row",
                 { attrs: { justify: "center" } },
-                [_c("QuranViewer", { attrs: { corpus: _vm.corpus } })],
+                [
+                  _vm.user
+                    ? _c("QuranViewer", {
+                        attrs: {
+                          corpus: _vm.corpus,
+                          initialPageNumber: _vm.user.reading.page_id,
+                          title: _vm.user.reading.title
+                        },
+                        on: {
+                          "select-reading": function($event) {
+                            _vm.readingDialog = true
+                          }
+                        }
+                      })
+                    : _vm._e()
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-dialog",
+                {
+                  attrs: { width: "500" },
+                  model: {
+                    value: _vm.readingDialog,
+                    callback: function($$v) {
+                      _vm.readingDialog = $$v
+                    },
+                    expression: "readingDialog"
+                  }
+                },
+                [
+                  _c("zekr-reading-dialog", {
+                    attrs: { currentReadingId: _vm.user.reading.id },
+                    on: {
+                      closed: function($event) {
+                        _vm.readingDialog = false
+                      }
+                    }
+                  })
+                ],
                 1
               )
             ],
             1
+          )
+        ],
+        1
+      )
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vuetify-loader/lib/loader.js!./node_modules/vue-loader/lib/index.js?!./resources/js/views/ZekrReadingDialog.vue?vue&type=template&id=6f6d8e33&":
+/*!***********************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vuetify-loader/lib/loader.js!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/views/ZekrReadingDialog.vue?vue&type=template&id=6f6d8e33& ***!
+  \***********************************************************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "v-card",
+    [
+      _c(
+        "v-card-title",
+        {
+          staticClass: "headline grey lighten-2",
+          attrs: { "primary-title": "" }
+        },
+        [_vm._v("\n        انتخاب تلاوت\n    ")]
+      ),
+      _vm._v(" "),
+      _c(
+        "v-card-text",
+        [
+          _c(
+            "v-radio-group",
+            {
+              model: {
+                value: _vm.selectedReading,
+                callback: function($$v) {
+                  _vm.selectedReading = $$v
+                },
+                expression: "selectedReading"
+              }
+            },
+            _vm._l(_vm.readings, function(reading) {
+              return _c(
+                "div",
+                [
+                  _c("v-radio", {
+                    attrs: { value: reading.id },
+                    scopedSlots: _vm._u(
+                      [
+                        {
+                          key: "label",
+                          fn: function() {
+                            return [
+                              _vm._v(
+                                "\n                        " +
+                                  _vm._s(reading.title) +
+                                  " (صفحه " +
+                                  _vm._s(reading.page_id) +
+                                  ")\n                    "
+                              )
+                            ]
+                          },
+                          proxy: true
+                        }
+                      ],
+                      null,
+                      true
+                    )
+                  })
+                ],
+                1
+              )
+            }),
+            0
+          ),
+          _vm._v(" "),
+          _c(
+            "v-btn",
+            { attrs: { text: "" } },
+            [_c("v-icon", [_vm._v("add")]), _vm._v(" ایجاد تلاوت جدید")],
+            1
+          )
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c("v-divider"),
+      _vm._v(" "),
+      _c(
+        "v-card-actions",
+        [
+          _c("div", { staticClass: "flex-grow-1" }),
+          _vm._v(" "),
+          _c(
+            "v-btn",
+            {
+              attrs: { color: "primary", text: "" },
+              on: {
+                click: function($event) {
+                  return _vm.$emit("closed")
+                }
+              }
+            },
+            [_vm._v("\n            خب\n        ")]
           )
         ],
         1
@@ -813,10 +1101,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../node_modules/vuetify-loader/lib/runtime/installComponents.js */ "./node_modules/vuetify-loader/lib/runtime/installComponents.js");
 /* harmony import */ var _node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var vuetify_lib_components_VAutocomplete__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vuetify/lib/components/VAutocomplete */ "./node_modules/vuetify/lib/components/VAutocomplete/index.js");
-/* harmony import */ var vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vuetify/lib/components/VCard */ "./node_modules/vuetify/lib/components/VCard/index.js");
-/* harmony import */ var vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! vuetify/lib/components/VGrid */ "./node_modules/vuetify/lib/components/VGrid/index.js");
-/* harmony import */ var vuetify_lib_components_VSlider__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! vuetify/lib/components/VSlider */ "./node_modules/vuetify/lib/components/VSlider/index.js");
-/* harmony import */ var vuetify_lib_components_VTextField__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! vuetify/lib/components/VTextField */ "./node_modules/vuetify/lib/components/VTextField/index.js");
+/* harmony import */ var vuetify_lib_components_VBtn__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vuetify/lib/components/VBtn */ "./node_modules/vuetify/lib/components/VBtn/index.js");
+/* harmony import */ var vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! vuetify/lib/components/VCard */ "./node_modules/vuetify/lib/components/VCard/index.js");
+/* harmony import */ var vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! vuetify/lib/components/VGrid */ "./node_modules/vuetify/lib/components/VGrid/index.js");
+/* harmony import */ var vuetify_lib_components_VSlider__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! vuetify/lib/components/VSlider */ "./node_modules/vuetify/lib/components/VSlider/index.js");
+/* harmony import */ var vuetify_lib_components_VTextField__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! vuetify/lib/components/VTextField */ "./node_modules/vuetify/lib/components/VTextField/index.js");
 
 
 
@@ -845,7 +1134,8 @@ var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_
 
 
 
-_node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_4___default()(component, {VAutocomplete: vuetify_lib_components_VAutocomplete__WEBPACK_IMPORTED_MODULE_5__["VAutocomplete"],VCard: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_6__["VCard"],VCardText: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_6__["VCardText"],VCol: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__["VCol"],VRow: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__["VRow"],VSlider: vuetify_lib_components_VSlider__WEBPACK_IMPORTED_MODULE_8__["VSlider"],VTextField: vuetify_lib_components_VTextField__WEBPACK_IMPORTED_MODULE_9__["VTextField"]})
+
+_node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_4___default()(component, {VAutocomplete: vuetify_lib_components_VAutocomplete__WEBPACK_IMPORTED_MODULE_5__["VAutocomplete"],VBtn: vuetify_lib_components_VBtn__WEBPACK_IMPORTED_MODULE_6__["VBtn"],VCard: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_7__["VCard"],VCardText: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_7__["VCardText"],VCol: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_8__["VCol"],VRow: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_8__["VRow"],VSlider: vuetify_lib_components_VSlider__WEBPACK_IMPORTED_MODULE_9__["VSlider"],VTextField: vuetify_lib_components_VTextField__WEBPACK_IMPORTED_MODULE_10__["VTextField"]})
 
 
 /* hot reload */
@@ -1712,10 +2002,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vuetify_lib_components_VAutocomplete__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vuetify/lib/components/VAutocomplete */ "./node_modules/vuetify/lib/components/VAutocomplete/index.js");
 /* harmony import */ var vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! vuetify/lib/components/VGrid */ "./node_modules/vuetify/lib/components/VGrid/index.js");
 /* harmony import */ var vuetify_lib_components_VContent__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! vuetify/lib/components/VContent */ "./node_modules/vuetify/lib/components/VContent/index.js");
-/* harmony import */ var vuetify_lib_components_VIcon__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! vuetify/lib/components/VIcon */ "./node_modules/vuetify/lib/components/VIcon/index.js");
-/* harmony import */ var vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! vuetify/lib/components/VList */ "./node_modules/vuetify/lib/components/VList/index.js");
-/* harmony import */ var vuetify_lib_components_VNavigationDrawer__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! vuetify/lib/components/VNavigationDrawer */ "./node_modules/vuetify/lib/components/VNavigationDrawer/index.js");
-/* harmony import */ var vuetify_lib_components_VTextField__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! vuetify/lib/components/VTextField */ "./node_modules/vuetify/lib/components/VTextField/index.js");
+/* harmony import */ var vuetify_lib_components_VDialog__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! vuetify/lib/components/VDialog */ "./node_modules/vuetify/lib/components/VDialog/index.js");
+/* harmony import */ var vuetify_lib_components_VIcon__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! vuetify/lib/components/VIcon */ "./node_modules/vuetify/lib/components/VIcon/index.js");
+/* harmony import */ var vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! vuetify/lib/components/VList */ "./node_modules/vuetify/lib/components/VList/index.js");
+/* harmony import */ var vuetify_lib_components_VNavigationDrawer__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! vuetify/lib/components/VNavigationDrawer */ "./node_modules/vuetify/lib/components/VNavigationDrawer/index.js");
+/* harmony import */ var vuetify_lib_components_VTextField__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! vuetify/lib/components/VTextField */ "./node_modules/vuetify/lib/components/VTextField/index.js");
 
 
 
@@ -1752,7 +2043,8 @@ var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_
 
 
 
-_node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_4___default()(component, {VAppBar: vuetify_lib_components_VAppBar__WEBPACK_IMPORTED_MODULE_5__["VAppBar"],VAppBarNavIcon: vuetify_lib_components_VAppBar__WEBPACK_IMPORTED_MODULE_5__["VAppBarNavIcon"],VAutocomplete: vuetify_lib_components_VAutocomplete__WEBPACK_IMPORTED_MODULE_6__["VAutocomplete"],VContainer: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__["VContainer"],VContent: vuetify_lib_components_VContent__WEBPACK_IMPORTED_MODULE_8__["VContent"],VIcon: vuetify_lib_components_VIcon__WEBPACK_IMPORTED_MODULE_9__["VIcon"],VList: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_10__["VList"],VListItem: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_10__["VListItem"],VListItemAction: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_10__["VListItemAction"],VListItemContent: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_10__["VListItemContent"],VListItemTitle: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_10__["VListItemTitle"],VNavigationDrawer: vuetify_lib_components_VNavigationDrawer__WEBPACK_IMPORTED_MODULE_11__["VNavigationDrawer"],VRow: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__["VRow"],VSpacer: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__["VSpacer"],VTextField: vuetify_lib_components_VTextField__WEBPACK_IMPORTED_MODULE_12__["VTextField"]})
+
+_node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_4___default()(component, {VAppBar: vuetify_lib_components_VAppBar__WEBPACK_IMPORTED_MODULE_5__["VAppBar"],VAppBarNavIcon: vuetify_lib_components_VAppBar__WEBPACK_IMPORTED_MODULE_5__["VAppBarNavIcon"],VAutocomplete: vuetify_lib_components_VAutocomplete__WEBPACK_IMPORTED_MODULE_6__["VAutocomplete"],VContainer: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__["VContainer"],VContent: vuetify_lib_components_VContent__WEBPACK_IMPORTED_MODULE_8__["VContent"],VDialog: vuetify_lib_components_VDialog__WEBPACK_IMPORTED_MODULE_9__["VDialog"],VIcon: vuetify_lib_components_VIcon__WEBPACK_IMPORTED_MODULE_10__["VIcon"],VList: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_11__["VList"],VListItem: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_11__["VListItem"],VListItemAction: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_11__["VListItemAction"],VListItemContent: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_11__["VListItemContent"],VListItemTitle: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_11__["VListItemTitle"],VNavigationDrawer: vuetify_lib_components_VNavigationDrawer__WEBPACK_IMPORTED_MODULE_12__["VNavigationDrawer"],VRow: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__["VRow"],VSpacer: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__["VSpacer"],VTextField: vuetify_lib_components_VTextField__WEBPACK_IMPORTED_MODULE_13__["VTextField"]})
 
 
 /* hot reload */
@@ -1805,6 +2097,96 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vuetify_loader_lib_loader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Home_vue_vue_type_template_id_63cd6604___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vuetify_loader_lib_loader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_Home_vue_vue_type_template_id_63cd6604___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./resources/js/views/ZekrReadingDialog.vue":
+/*!**************************************************!*\
+  !*** ./resources/js/views/ZekrReadingDialog.vue ***!
+  \**************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _ZekrReadingDialog_vue_vue_type_template_id_6f6d8e33___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ZekrReadingDialog.vue?vue&type=template&id=6f6d8e33& */ "./resources/js/views/ZekrReadingDialog.vue?vue&type=template&id=6f6d8e33&");
+/* harmony import */ var _ZekrReadingDialog_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ZekrReadingDialog.vue?vue&type=script&lang=js& */ "./resources/js/views/ZekrReadingDialog.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* harmony import */ var _node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../node_modules/vuetify-loader/lib/runtime/installComponents.js */ "./node_modules/vuetify-loader/lib/runtime/installComponents.js");
+/* harmony import */ var _node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var vuetify_lib_components_VBtn__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vuetify/lib/components/VBtn */ "./node_modules/vuetify/lib/components/VBtn/index.js");
+/* harmony import */ var vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vuetify/lib/components/VCard */ "./node_modules/vuetify/lib/components/VCard/index.js");
+/* harmony import */ var vuetify_lib_components_VDivider__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vuetify/lib/components/VDivider */ "./node_modules/vuetify/lib/components/VDivider/index.js");
+/* harmony import */ var vuetify_lib_components_VIcon__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! vuetify/lib/components/VIcon */ "./node_modules/vuetify/lib/components/VIcon/index.js");
+/* harmony import */ var vuetify_lib_components_VRadioGroup__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! vuetify/lib/components/VRadioGroup */ "./node_modules/vuetify/lib/components/VRadioGroup/index.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _ZekrReadingDialog_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _ZekrReadingDialog_vue_vue_type_template_id_6f6d8e33___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _ZekrReadingDialog_vue_vue_type_template_id_6f6d8e33___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* vuetify-loader */
+
+
+
+
+
+
+
+
+
+
+_node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_3___default()(component, {VBtn: vuetify_lib_components_VBtn__WEBPACK_IMPORTED_MODULE_4__["VBtn"],VCard: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_5__["VCard"],VCardActions: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_5__["VCardActions"],VCardText: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_5__["VCardText"],VCardTitle: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_5__["VCardTitle"],VDivider: vuetify_lib_components_VDivider__WEBPACK_IMPORTED_MODULE_6__["VDivider"],VIcon: vuetify_lib_components_VIcon__WEBPACK_IMPORTED_MODULE_7__["VIcon"],VRadio: vuetify_lib_components_VRadioGroup__WEBPACK_IMPORTED_MODULE_8__["VRadio"],VRadioGroup: vuetify_lib_components_VRadioGroup__WEBPACK_IMPORTED_MODULE_8__["VRadioGroup"]})
+
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/views/ZekrReadingDialog.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/views/ZekrReadingDialog.vue?vue&type=script&lang=js&":
+/*!***************************************************************************!*\
+  !*** ./resources/js/views/ZekrReadingDialog.vue?vue&type=script&lang=js& ***!
+  \***************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vuetify_loader_lib_loader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_ZekrReadingDialog_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vuetify-loader/lib/loader.js!../../../node_modules/vue-loader/lib??vue-loader-options!./ZekrReadingDialog.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vuetify-loader/lib/loader.js!./node_modules/vue-loader/lib/index.js?!./resources/js/views/ZekrReadingDialog.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vuetify_loader_lib_loader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_ZekrReadingDialog_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/views/ZekrReadingDialog.vue?vue&type=template&id=6f6d8e33&":
+/*!*********************************************************************************!*\
+  !*** ./resources/js/views/ZekrReadingDialog.vue?vue&type=template&id=6f6d8e33& ***!
+  \*********************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vuetify_loader_lib_loader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_ZekrReadingDialog_vue_vue_type_template_id_6f6d8e33___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vuetify-loader/lib/loader.js!../../../node_modules/vue-loader/lib??vue-loader-options!./ZekrReadingDialog.vue?vue&type=template&id=6f6d8e33& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vuetify-loader/lib/loader.js!./node_modules/vue-loader/lib/index.js?!./resources/js/views/ZekrReadingDialog.vue?vue&type=template&id=6f6d8e33&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vuetify_loader_lib_loader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_ZekrReadingDialog_vue_vue_type_template_id_6f6d8e33___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vuetify_loader_lib_loader_js_node_modules_vue_loader_lib_index_js_vue_loader_options_ZekrReadingDialog_vue_vue_type_template_id_6f6d8e33___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 
