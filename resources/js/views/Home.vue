@@ -2,6 +2,14 @@
     <div>
         <v-navigation-drawer disable-resize-watcher v-model="drawer" app clipped color="grey lighten-4" :right="$vuetify.rtl">
             <v-list dense class="grey lighten-4">
+                <v-list-item v-if="user">
+                    <v-list-item-action>
+                        <v-icon>person</v-icon>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                        <v-list-item-title class="grey--text">{{ user.name }}</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
                 <template v-for="(item, i) in items">
                     <v-row v-if="item.heading" :key="i" align="center">
                         <v-col cols="6">
@@ -70,7 +78,10 @@
         }),
         components: {
             QuranViewer
-        }
+        },
+        props: [
+            'user'
+        ]
     };
 </script>
 

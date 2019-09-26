@@ -231,6 +231,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -265,7 +273,8 @@ __webpack_require__.r(__webpack_exports__);
   },
   components: {
     QuranViewer: _components_QuranViewer__WEBPACK_IMPORTED_MODULE_0__["default"]
-  }
+  },
+  props: ['user']
 });
 
 /***/ }),
@@ -650,6 +659,32 @@ var render = function() {
             "v-list",
             { staticClass: "grey lighten-4", attrs: { dense: "" } },
             [
+              _vm.user
+                ? _c(
+                    "v-list-item",
+                    [
+                      _c(
+                        "v-list-item-action",
+                        [_c("v-icon", [_vm._v("person")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-item-content",
+                        [
+                          _c(
+                            "v-list-item-title",
+                            { staticClass: "grey--text" },
+                            [_vm._v(_vm._s(_vm.user.name))]
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                : _vm._e(),
+              _vm._v(" "),
               _vm._l(_vm.items, function(item, i) {
                 return [
                   item.heading

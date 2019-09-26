@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f6bcf02cbc31751b947ce81f7bb1acf5",
+    "content-hash": "5b9fdb4203c14a87511a1f2f9953b52e",
     "packages": [
         {
             "name": "defuse/php-encryption",
@@ -1365,6 +1365,49 @@
                 "server"
             ],
             "time": "2019-05-05T09:22:01+00:00"
+        },
+        {
+            "name": "mokhosh/jarbon",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mokhosh/jarbon.git",
+                "reference": "55b380eafb811781f855ccb5619e62a2a3993220"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mokhosh/jarbon/zipball/55b380eafb811781f855ccb5619e62a2a3993220",
+                "reference": "55b380eafb811781f855ccb5619e62a2a3993220",
+                "shasum": ""
+            },
+            "require": {
+                "nesbot/carbon": "^2.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Mokhosh\\Jarbon\\JarbonServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Mokhosh\\Jarbon\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mohammad Sadeq Khoshnazar",
+                    "email": "mskhoshnazar@gmail.com"
+                }
+            ],
+            "description": "A Jalali wrapper for Carbon to use with Laravel.",
+            "time": "2019-09-22T20:18:04+00:00"
         },
         {
             "name": "monolog/monolog",

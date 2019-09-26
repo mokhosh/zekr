@@ -2835,7 +2835,7 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("v-app", [_c("router-view")], 1)
+  return _c("v-app", [_c("router-view", { attrs: { user: _vm.user } })], 1)
 }
 var staticRenderFns = []
 render._withStripped = true
