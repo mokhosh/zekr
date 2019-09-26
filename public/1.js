@@ -57,50 +57,33 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       page: {},
       currentPageNumber: 1,
-      corpus: 3,
       isLoading: true,
       chapter: 1,
       part: 1,
       chapters: _meta_js__WEBPACK_IMPORTED_MODULE_0__["chapters"],
-      parts: _meta_js__WEBPACK_IMPORTED_MODULE_0__["parts"],
-      corpuses: []
+      parts: _meta_js__WEBPACK_IMPORTED_MODULE_0__["parts"]
     };
   },
   watch: {
     currentPageNumber: 'loadPage'
   },
   mounted: function mounted() {
-    this.loadCorpuses();
-
     if (window.localStorage.currentPageNumber) {
       this.currentPageNumber = window.localStorage.currentPageNumber;
     } else {
       this.loadPage(this.currentPageNumber);
     }
   },
+  props: ['corpus'],
   methods: {
-    loadCorpuses: function loadCorpuses() {
-      var _this = this;
-
-      axios.get('api/corpuses').then(function (result) {
-        _this.corpuses = result.data;
-      })["catch"](function (e) {
-        return console.log(e);
-      });
-    },
     loadPage: function loadPage(page_number) {
-      var _this2 = this;
+      var _this = this;
 
       this.isLoading = true;
       axios.get('/api/quran', {
@@ -108,29 +91,29 @@ __webpack_require__.r(__webpack_exports__);
           page_number: page_number
         }
       }).then(function (result) {
-        _this2.page = result.data;
-        _this2.isLoading = false;
-        _this2.chapter = _this2.page.verses[0].chapter_id;
-        _this2.part = _this2.parts.find(function (el) {
-          return el.page <= _this2.currentPageNumber;
+        _this.page = result.data;
+        _this.isLoading = false;
+        _this.chapter = _this.page.verses[0].chapter_id;
+        _this.part = _this.parts.find(function (el) {
+          return el.page <= _this.currentPageNumber;
         }).id;
-        window.localStorage.currentPageNumber = _this2.currentPageNumber;
+        window.localStorage.currentPageNumber = _this.currentPageNumber;
       })["catch"](function (e) {
-        return _this2.$message.error(e);
+        return _this.$message.error(e);
       });
     },
     loadChapter: function loadChapter() {
-      var _this3 = this;
+      var _this2 = this;
 
       this.currentPageNumber = this.chapters.find(function (el) {
-        return el.id == _this3.chapter;
+        return el.id == _this2.chapter;
       }).page;
     },
     loadPart: function loadPart() {
-      var _this4 = this;
+      var _this3 = this;
 
       this.currentPageNumber = this.parts.find(function (el) {
-        return el.id == _this4.part;
+        return el.id == _this3.part;
       }).page;
     },
     chapterFilter: function chapterFilter(item, queryText) {
@@ -239,10 +222,22 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+  mounted: function mounted() {
+    this.loadCorpuses();
+  },
   data: function data() {
     return {
+      corpuses: [],
+      corpus: 3,
       drawer: false,
       items: [{
         icon: "lightbulb_outline",
@@ -270,6 +265,17 @@ __webpack_require__.r(__webpack_exports__);
         text: "Help"
       }]
     };
+  },
+  methods: {
+    loadCorpuses: function loadCorpuses() {
+      var _this = this;
+
+      axios.get('api/corpuses').then(function (result) {
+        _this.corpuses = result.data;
+      })["catch"](function (e) {
+        return console.log(e);
+      });
+    }
   },
   components: {
     QuranViewer: _components_QuranViewer__WEBPACK_IMPORTED_MODULE_0__["default"]
@@ -450,31 +456,6 @@ var render = function() {
                           readonly: "",
                           flat: "",
                           height: "20"
-                        }
-                      })
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-col",
-                    [
-                      _c("v-autocomplete", {
-                        attrs: {
-                          items: _vm.corpuses,
-                          color: "white",
-                          "item-text": "title",
-                          "item-value": "id",
-                          dense: "",
-                          height: "20",
-                          label: "متن"
-                        },
-                        model: {
-                          value: _vm.corpus,
-                          callback: function($$v) {
-                            _vm.corpus = $$v
-                          },
-                          expression: "corpus"
                         }
                       })
                     ],
@@ -685,71 +666,38 @@ var render = function() {
                   )
                 : _vm._e(),
               _vm._v(" "),
-              _vm._l(_vm.items, function(item, i) {
-                return [
-                  item.heading
-                    ? _c(
-                        "v-row",
-                        { key: i, attrs: { align: "center" } },
+              _vm.user
+                ? _c(
+                    "v-list-item",
+                    [
+                      _c(
+                        "v-list-item-content",
                         [
-                          _c(
-                            "v-col",
-                            { attrs: { cols: "6" } },
-                            [
-                              item.heading
-                                ? _c("v-subheader", [
-                                    _vm._v(_vm._s(item.heading))
-                                  ])
-                                : _vm._e()
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "v-col",
-                            { staticClass: "text-right", attrs: { cols: "6" } },
-                            [
-                              _c("v-btn", { attrs: { small: "", text: "" } }, [
-                                _vm._v("edit")
-                              ])
-                            ],
-                            1
-                          )
+                          _c("v-autocomplete", {
+                            attrs: {
+                              items: _vm.corpuses,
+                              color: "white",
+                              "item-text": "title",
+                              "item-value": "id",
+                              dense: "",
+                              height: "20",
+                              label: "متن"
+                            },
+                            model: {
+                              value: _vm.corpus,
+                              callback: function($$v) {
+                                _vm.corpus = $$v
+                              },
+                              expression: "corpus"
+                            }
+                          })
                         ],
                         1
                       )
-                    : item.divider
-                    ? _c("v-divider", {
-                        key: i,
-                        staticClass: "my-4",
-                        attrs: { dark: "" }
-                      })
-                    : _c(
-                        "v-list-item",
-                        { key: i, on: { click: function($event) {} } },
-                        [
-                          _c(
-                            "v-list-item-action",
-                            [_c("v-icon", [_vm._v(_vm._s(item.icon))])],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "v-list-item-content",
-                            [
-                              _c(
-                                "v-list-item-title",
-                                { staticClass: "grey--text" },
-                                [_vm._v(_vm._s(item.text))]
-                              )
-                            ],
-                            1
-                          )
-                        ],
-                        1
-                      )
-                ]
-              }),
+                    ],
+                    1
+                  )
+                : _vm._e(),
               _vm._v(" "),
               _c(
                 "v-list-item",
@@ -774,7 +722,7 @@ var render = function() {
                 1
               )
             ],
-            2
+            1
           )
         ],
         1
@@ -829,7 +777,7 @@ var render = function() {
               _c(
                 "v-row",
                 { attrs: { justify: "center" } },
-                [_c("QuranViewer")],
+                [_c("QuranViewer", { attrs: { corpus: _vm.corpus } })],
                 1
               )
             ],
@@ -1761,15 +1709,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../node_modules/vuetify-loader/lib/runtime/installComponents.js */ "./node_modules/vuetify-loader/lib/runtime/installComponents.js");
 /* harmony import */ var _node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var vuetify_lib_components_VAppBar__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vuetify/lib/components/VAppBar */ "./node_modules/vuetify/lib/components/VAppBar/index.js");
-/* harmony import */ var vuetify_lib_components_VBtn__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vuetify/lib/components/VBtn */ "./node_modules/vuetify/lib/components/VBtn/index.js");
+/* harmony import */ var vuetify_lib_components_VAutocomplete__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vuetify/lib/components/VAutocomplete */ "./node_modules/vuetify/lib/components/VAutocomplete/index.js");
 /* harmony import */ var vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! vuetify/lib/components/VGrid */ "./node_modules/vuetify/lib/components/VGrid/index.js");
 /* harmony import */ var vuetify_lib_components_VContent__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! vuetify/lib/components/VContent */ "./node_modules/vuetify/lib/components/VContent/index.js");
-/* harmony import */ var vuetify_lib_components_VDivider__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! vuetify/lib/components/VDivider */ "./node_modules/vuetify/lib/components/VDivider/index.js");
-/* harmony import */ var vuetify_lib_components_VIcon__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! vuetify/lib/components/VIcon */ "./node_modules/vuetify/lib/components/VIcon/index.js");
-/* harmony import */ var vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! vuetify/lib/components/VList */ "./node_modules/vuetify/lib/components/VList/index.js");
-/* harmony import */ var vuetify_lib_components_VNavigationDrawer__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! vuetify/lib/components/VNavigationDrawer */ "./node_modules/vuetify/lib/components/VNavigationDrawer/index.js");
-/* harmony import */ var vuetify_lib_components_VSubheader__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! vuetify/lib/components/VSubheader */ "./node_modules/vuetify/lib/components/VSubheader/index.js");
-/* harmony import */ var vuetify_lib_components_VTextField__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! vuetify/lib/components/VTextField */ "./node_modules/vuetify/lib/components/VTextField/index.js");
+/* harmony import */ var vuetify_lib_components_VIcon__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! vuetify/lib/components/VIcon */ "./node_modules/vuetify/lib/components/VIcon/index.js");
+/* harmony import */ var vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! vuetify/lib/components/VList */ "./node_modules/vuetify/lib/components/VList/index.js");
+/* harmony import */ var vuetify_lib_components_VNavigationDrawer__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! vuetify/lib/components/VNavigationDrawer */ "./node_modules/vuetify/lib/components/VNavigationDrawer/index.js");
+/* harmony import */ var vuetify_lib_components_VTextField__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! vuetify/lib/components/VTextField */ "./node_modules/vuetify/lib/components/VTextField/index.js");
 
 
 
@@ -1806,10 +1752,7 @@ var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_
 
 
 
-
-
-
-_node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_4___default()(component, {VAppBar: vuetify_lib_components_VAppBar__WEBPACK_IMPORTED_MODULE_5__["VAppBar"],VAppBarNavIcon: vuetify_lib_components_VAppBar__WEBPACK_IMPORTED_MODULE_5__["VAppBarNavIcon"],VBtn: vuetify_lib_components_VBtn__WEBPACK_IMPORTED_MODULE_6__["VBtn"],VCol: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__["VCol"],VContainer: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__["VContainer"],VContent: vuetify_lib_components_VContent__WEBPACK_IMPORTED_MODULE_8__["VContent"],VDivider: vuetify_lib_components_VDivider__WEBPACK_IMPORTED_MODULE_9__["VDivider"],VIcon: vuetify_lib_components_VIcon__WEBPACK_IMPORTED_MODULE_10__["VIcon"],VList: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_11__["VList"],VListItem: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_11__["VListItem"],VListItemAction: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_11__["VListItemAction"],VListItemContent: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_11__["VListItemContent"],VListItemTitle: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_11__["VListItemTitle"],VNavigationDrawer: vuetify_lib_components_VNavigationDrawer__WEBPACK_IMPORTED_MODULE_12__["VNavigationDrawer"],VRow: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__["VRow"],VSpacer: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__["VSpacer"],VSubheader: vuetify_lib_components_VSubheader__WEBPACK_IMPORTED_MODULE_13__["VSubheader"],VTextField: vuetify_lib_components_VTextField__WEBPACK_IMPORTED_MODULE_14__["VTextField"]})
+_node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_4___default()(component, {VAppBar: vuetify_lib_components_VAppBar__WEBPACK_IMPORTED_MODULE_5__["VAppBar"],VAppBarNavIcon: vuetify_lib_components_VAppBar__WEBPACK_IMPORTED_MODULE_5__["VAppBarNavIcon"],VAutocomplete: vuetify_lib_components_VAutocomplete__WEBPACK_IMPORTED_MODULE_6__["VAutocomplete"],VContainer: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__["VContainer"],VContent: vuetify_lib_components_VContent__WEBPACK_IMPORTED_MODULE_8__["VContent"],VIcon: vuetify_lib_components_VIcon__WEBPACK_IMPORTED_MODULE_9__["VIcon"],VList: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_10__["VList"],VListItem: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_10__["VListItem"],VListItemAction: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_10__["VListItemAction"],VListItemContent: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_10__["VListItemContent"],VListItemTitle: vuetify_lib_components_VList__WEBPACK_IMPORTED_MODULE_10__["VListItemTitle"],VNavigationDrawer: vuetify_lib_components_VNavigationDrawer__WEBPACK_IMPORTED_MODULE_11__["VNavigationDrawer"],VRow: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__["VRow"],VSpacer: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__["VSpacer"],VTextField: vuetify_lib_components_VTextField__WEBPACK_IMPORTED_MODULE_12__["VTextField"]})
 
 
 /* hot reload */

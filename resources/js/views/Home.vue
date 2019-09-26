@@ -10,7 +10,14 @@
                         <v-list-item-title class="grey--text">{{ user.name }}</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
-                <template v-for="(item, i) in items">
+                <v-list-item v-if="user">
+                    <v-list-item-content>
+                        <v-autocomplete
+                            :items="corpuses" color="white" item-text="title" item-value="id" dense height="20"
+                            v-model="corpus" label="متن"/>
+                    </v-list-item-content>
+                </v-list-item>
+                <!--<template v-for="(item, i) in items">
                     <v-row v-if="item.heading" :key="i" align="center">
                         <v-col cols="6">
                             <v-subheader v-if="item.heading">{{ item.heading }}</v-subheader>
@@ -25,10 +32,10 @@
                             <v-icon>{{ item.icon }}</v-icon>
                         </v-list-item-action>
                         <v-list-item-content>
-                            <v-list-item-title class="grey--text">{{ item.text }}</v-list-item-title>
+                            <v-list-item-title class="grey&#45;&#45;text">{{ item.text }}</v-list-item-title>
                         </v-list-item-content>
                     </v-list-item>
-                </template>
+                </template>-->
                 <v-list-item to="/logout">
                     <v-list-item-action>
                         <v-icon>exit_to_app</v-icon>
@@ -51,7 +58,7 @@
         <v-content>
             <v-container fluid class="grey lighten-4 fill-height">
                 <v-row justify="center">
-                    <QuranViewer />
+                    <QuranViewer :corpus="corpus" />
                 </v-row>
             </v-container>
         </v-content>
@@ -62,7 +69,12 @@
     import QuranViewer from "../components/QuranViewer";
 
     export default {
+        mounted () {
+            this.loadCorpuses();
+        },
         data: () => ({
+            corpuses: [],
+            corpus: 3,
             drawer: false,
             items: [
                 {icon: "lightbulb_outline", text: "Notes"},
@@ -76,6 +88,15 @@
                 {icon: "help", text: "Help"},
             ]
         }),
+        methods: {
+            loadCorpuses() {
+                axios.get('api/corpuses')
+                    .then(result => {
+                        this.corpuses = result.data;
+                    })
+                    .catch(e => console.log(e))
+            },
+        },
         components: {
             QuranViewer
         },

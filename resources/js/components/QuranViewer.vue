@@ -12,11 +12,6 @@
                     <v-col cols="auto">
                         <v-text-field label="جزء" :value="part" readonly flat style="width:2em" height="20" />
                     </v-col>
-                    <v-col>
-                        <v-autocomplete
-                            :items="corpuses" color="white" item-text="title" item-value="id" dense height="20"
-                            v-model="corpus" label="متن"/>
-                    </v-col>
                 </v-row>
                 <v-row type="flex" justify="center">
                     <v-slider
@@ -58,34 +53,27 @@
             return {
                 page: {},
                 currentPageNumber: 1,
-                corpus: 3,
                 isLoading: true,
                 chapter: 1,
                 part: 1,
                 chapters,
                 parts,
-                corpuses: []
             }
         },
         watch: {
             currentPageNumber: 'loadPage'
         },
         mounted() {
-            this.loadCorpuses();
             if (window.localStorage.currentPageNumber) {
                 this.currentPageNumber = window.localStorage.currentPageNumber;
             } else {
                 this.loadPage(this.currentPageNumber);
             }
         },
+        props: [
+            'corpus'
+        ],
         methods: {
-            loadCorpuses() {
-                axios.get('api/corpuses')
-                    .then(result => {
-                        this.corpuses = result.data;
-                    })
-                    .catch(e => console.log(e))
-            },
             loadPage(page_number) {
                 this.isLoading = true;
                 axios.get('/api/quran', {params: {page_number}})
