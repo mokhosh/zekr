@@ -2163,7 +2163,7 @@ __webpack_require__.r(__webpack_exports__);
       show: false,
       rules: {
         required: function required(value) {
-          return !!value || 'این فیلد نمیتواند خالی باشد';
+          return !!value || 'این فیلد نباید خالی باشد';
         },
         counter: function counter(value) {
           return !!value && value.length >= 8 || 'حداقل 8 کاراکتر';
@@ -2180,7 +2180,7 @@ __webpack_require__.r(__webpack_exports__);
       var _this = this;
 
       if (this.$refs.form.validate()) {
-        axios.post('http://zekr.me/api/register', this.form).then(function (result) {
+        axios.post('api/register', this.form).then(function (result) {
           localStorage.setItem('access_token', result.data.access_token);
           axios.defaults.headers.common.Authorization = "Bearer ".concat(result.data.access_token);
 
@@ -2835,7 +2835,16 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("v-app", [_c("router-view", { attrs: { user: _vm.user } })], 1)
+  return _c(
+    "v-app",
+    [
+      _c("router-view", {
+        attrs: { user: _vm.user },
+        on: { "reading-changed": _vm.getUser }
+      })
+    ],
+    1
+  )
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -54264,7 +54273,7 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuetify_toast_snackbar__WEBPACK_I
     themes: {
       light: {
         primary: '#3e64ff',
-        secondary: '#5edfff',
+        secondary: '#77ddff',
         accent: '#042f4b',
         error: '#f76262',
         warning: '#ffc107',

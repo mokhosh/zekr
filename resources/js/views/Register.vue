@@ -12,7 +12,7 @@
                 <v-form ref="form">
                   <v-text-field filled label="نام" prepend-icon="person" name="name"
                     type="text" :rules="[rules.required]"></v-text-field>
-                  
+
                   <v-text-field filled label="ایمیل" prepend-icon="email" name="email"
                     type="text" :rules="[rules.required, rules.email]"></v-text-field>
 
@@ -39,7 +39,7 @@
     data: () => ({
       show: false,
       rules: {
-          required: value => !!value || 'این فیلد نمیتواند خالی باشد',
+          required: value => !!value || 'این فیلد نباید خالی باشد',
           counter: value => (!!value && value.length >= 8) || 'حداقل 8 کاراکتر',
           email: value => {
             const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -50,7 +50,7 @@
     methods: {
       register() {
         if (this.$refs.form.validate()) {
-          axios.post('http://zekr.me/api/register', this.form)
+          axios.post('api/register', this.form)
                 .then(result => {
                     localStorage.setItem('access_token', result.data.access_token);
                     axios.defaults.headers.common.Authorization = `Bearer ${result.data.access_token}`;

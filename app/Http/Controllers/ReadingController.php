@@ -14,7 +14,7 @@ class ReadingController extends Controller
 
     public function store(Request $request)
     {
-        //
+        return $request->user()->readings()->create(['title' => $request->get('title'), 'page_id' => 1]);
     }
 
     public function show(Reading $reading)
@@ -30,5 +30,11 @@ class ReadingController extends Controller
     public function destroy(Reading $reading)
     {
         //
+    }
+
+    public function setReading(Request $request)
+    {
+        $request->user()->reading()->associate($request->get('reading_id'))->save();
+        return response()->json(['message' => 'done']);
     }
 }

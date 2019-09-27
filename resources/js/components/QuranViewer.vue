@@ -5,7 +5,7 @@
             <v-card-text class="pt-0">
                 <v-row type="flex" justify="center" class="pt-0" gutter="10">
                     <v-col cols="auto">
-                        <v-btn @click="$emit('select-reading')">{{ title }}</v-btn>
+                        <v-btn color="secondary" @click="$emit('select-reading')">{{ title }}</v-btn>
                     </v-col>
                     <v-col>
                         <v-autocomplete
@@ -19,7 +19,7 @@
                 <v-row type="flex" justify="center">
                     <v-slider
                         @change="sliderChanged" :value="pageNumber"
-                        :ticks="false" :max="604" :min="1" step="1" thumb-label="always" thumb-size="28" thumb-color="accent"
+                        :ticks="false" :max="604" :min="1" step="1" thumb-label="always" thumb-size="28" thumb-color="secondary"
                         append-icon="navigate_before" prepend-icon="navigate_next"
                         @click:append="nextPage" @click:prepend="prevPage"/>
                 </v-row>
@@ -64,7 +64,8 @@
             }
         },
         watch: {
-            pageNumber: 'loadPage'
+            pageNumber: 'loadPage',
+            initialPageNumber: 'reload',
         },
         props: [
             'initialPageNumber',
@@ -72,7 +73,7 @@
             'corpus'
         ],
         mounted() {
-            this.pageNumber = this.initialPageNumber;
+            this.reload();
         },
         methods: {
             loadPage(page_number) {
@@ -110,6 +111,9 @@
             prevPage() {
                 this.pageNumber = Math.max(this.pageNumber - 1, 1);
             },
+            reload() {
+                this.pageNumber = this.initialPageNumber;
+            }
         },
         filters: {
             arabic(value) {

@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <router-view :user="user" />
+    <router-view :user="user" @reading-changed="getUser" />
   </v-app>
 </template>
 

@@ -11,7 +11,7 @@
                         <v-list-item-title class="grey--text">{{ user.name }}</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
-                <v-list-item @click="readingDialog = true">
+                <v-list-item v-if="user" @click="readingDialog = true">
                     <v-list-item-action>
                         <v-icon>bookmarks</v-icon>
                     </v-list-item-action>
@@ -67,13 +67,15 @@
         <v-content>
             <v-container fluid class="grey lighten-4 fill-height">
                 <v-row justify="center">
-                    <QuranViewer v-if="user" :corpus="corpus"
+                    <QuranViewer v-if="user" :corpus="corpus" ref="quranViewer"
                                  @select-reading="readingDialog = true"
                                  :initialPageNumber="user.reading.page_id"
                                  :title="user.reading.title"/>
                 </v-row>
-                <v-dialog v-model="readingDialog" width="500">
-                    <zekr-reading-dialog :currentReadingId="user.reading.id" @closed="readingDialog = false" />
+                <v-dialog v-model="readingDialog" width="500" v-if="user">
+                    <zekr-reading-dialog :currentReadingId="user.reading.id" @closed="readingDialog = false"
+                                         @reading-changed="readingChanged"
+                    />
                 </v-dialog>
             </v-container>
         </v-content>
@@ -112,6 +114,9 @@
                         this.corpuses = result.data;
                     })
                     .catch(e => console.log(e))
+            },
+            readingChanged() {
+                this.$emit('reading-changed');
             },
         },
         components: {

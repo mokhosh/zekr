@@ -74,11 +74,12 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   watch: {
-    pageNumber: 'loadPage'
+    pageNumber: 'loadPage',
+    initialPageNumber: 'reload'
   },
   props: ['initialPageNumber', 'title', 'corpus'],
   mounted: function mounted() {
-    this.pageNumber = this.initialPageNumber;
+    this.reload();
   },
   methods: {
     loadPage: function loadPage(page_number) {
@@ -130,6 +131,9 @@ __webpack_require__.r(__webpack_exports__);
     },
     prevPage: function prevPage() {
       this.pageNumber = Math.max(this.pageNumber - 1, 1);
+    },
+    reload: function reload() {
+      this.pageNumber = this.initialPageNumber;
     }
   },
   filters: {
@@ -161,6 +165,8 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_QuranViewer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../components/QuranViewer */ "./resources/js/components/QuranViewer.vue");
 /* harmony import */ var _ZekrReadingDialog__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ZekrReadingDialog */ "./resources/js/views/ZekrReadingDialog.vue");
+//
+//
 //
 //
 //
@@ -291,6 +297,9 @@ __webpack_require__.r(__webpack_exports__);
       })["catch"](function (e) {
         return console.log(e);
       });
+    },
+    readingChanged: function readingChanged() {
+      this.$emit('reading-changed');
     }
   },
   components: {
@@ -340,12 +349,28 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'zekr-reading-dialog',
   data: function data() {
     return {
       readings: [],
-      selectedReading: null
+      selectedReading: null,
+      newReading: '',
+      isAdding: false,
+      isSetting: false,
+      rules: {
+        required: function required(value) {
+          return !!value || 'این فیلد نباید خالی باشد';
+        }
+      }
     };
   },
   props: ['currentReadingId'],
@@ -361,6 +386,40 @@ __webpack_require__.r(__webpack_exports__);
         _this.readings = result.data;
       })["catch"](function (e) {
         return console.log(e);
+      });
+    },
+    addReading: function addReading() {
+      var _this2 = this;
+
+      if (this.$refs.form.validate()) {
+        this.isAdding = true;
+        axios.post('api/readings', {
+          'title': this.newReading
+        }).then(function () {
+          _this2.loadReadings();
+
+          _this2.newReading = '';
+        })["catch"](function (e) {
+          return _this2.$toast.error(e);
+        })["finally"](function () {
+          return _this2.isAdding = false;
+        });
+      }
+    },
+    setReading: function setReading() {
+      var _this3 = this;
+
+      this.isSetting = true;
+      axios.post('api/set-reading', {
+        'reading_id': this.selectedReading
+      }).then(function (result) {
+        _this3.$toast.success('تلاوت انتخاب شد');
+
+        _this3.$emit('reading-changed');
+      })["catch"](function (e) {
+        return _this3.$toast.error(e);
+      })["finally"](function () {
+        return _this3.isSetting = false;
       });
     }
   }
@@ -507,6 +566,7 @@ var render = function() {
                       _c(
                         "v-btn",
                         {
+                          attrs: { color: "secondary" },
                           on: {
                             click: function($event) {
                               return _vm.$emit("select-reading")
@@ -580,7 +640,7 @@ var render = function() {
                       step: "1",
                       "thumb-label": "always",
                       "thumb-size": "28",
-                      "thumb-color": "accent",
+                      "thumb-color": "secondary",
                       "append-icon": "navigate_before",
                       "prepend-icon": "navigate_next"
                     },
@@ -768,34 +828,38 @@ var render = function() {
                   )
                 : _vm._e(),
               _vm._v(" "),
-              _c(
-                "v-list-item",
-                {
-                  on: {
-                    click: function($event) {
-                      _vm.readingDialog = true
-                    }
-                  }
-                },
-                [
-                  _c(
-                    "v-list-item-action",
-                    [_c("v-icon", [_vm._v("bookmarks")])],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-list-item-content",
+              _vm.user
+                ? _c(
+                    "v-list-item",
+                    {
+                      on: {
+                        click: function($event) {
+                          _vm.readingDialog = true
+                        }
+                      }
+                    },
                     [
-                      _c("v-list-item-title", { staticClass: "grey--text" }, [
-                        _vm._v(_vm._s(_vm.user.reading.title))
-                      ])
+                      _c(
+                        "v-list-item-action",
+                        [_c("v-icon", [_vm._v("bookmarks")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-item-content",
+                        [
+                          _c(
+                            "v-list-item-title",
+                            { staticClass: "grey--text" },
+                            [_vm._v(_vm._s(_vm.user.reading.title))]
+                          )
+                        ],
+                        1
+                      )
                     ],
                     1
                   )
-                ],
-                1
-              ),
+                : _vm._e(),
               _vm._v(" "),
               _c(
                 "v-list-item",
@@ -909,6 +973,7 @@ var render = function() {
                 [
                   _vm.user
                     ? _c("QuranViewer", {
+                        ref: "quranViewer",
                         attrs: {
                           corpus: _vm.corpus,
                           initialPageNumber: _vm.user.reading.page_id,
@@ -925,30 +990,33 @@ var render = function() {
                 1
               ),
               _vm._v(" "),
-              _c(
-                "v-dialog",
-                {
-                  attrs: { width: "500" },
-                  model: {
-                    value: _vm.readingDialog,
-                    callback: function($$v) {
-                      _vm.readingDialog = $$v
-                    },
-                    expression: "readingDialog"
-                  }
-                },
-                [
-                  _c("zekr-reading-dialog", {
-                    attrs: { currentReadingId: _vm.user.reading.id },
-                    on: {
-                      closed: function($event) {
-                        _vm.readingDialog = false
+              _vm.user
+                ? _c(
+                    "v-dialog",
+                    {
+                      attrs: { width: "500" },
+                      model: {
+                        value: _vm.readingDialog,
+                        callback: function($$v) {
+                          _vm.readingDialog = $$v
+                        },
+                        expression: "readingDialog"
                       }
-                    }
-                  })
-                ],
-                1
-              )
+                    },
+                    [
+                      _c("zekr-reading-dialog", {
+                        attrs: { currentReadingId: _vm.user.reading.id },
+                        on: {
+                          closed: function($event) {
+                            _vm.readingDialog = false
+                          },
+                          "reading-changed": _vm.readingChanged
+                        }
+                      })
+                    ],
+                    1
+                  )
+                : _vm._e()
             ],
             1
           )
@@ -999,6 +1067,7 @@ var render = function() {
           _c(
             "v-radio-group",
             {
+              on: { change: _vm.setReading },
               model: {
                 value: _vm.selectedReading,
                 callback: function($$v) {
@@ -1022,9 +1091,7 @@ var render = function() {
                               _vm._v(
                                 "\n                        " +
                                   _vm._s(reading.title) +
-                                  " (صفحه " +
-                                  _vm._s(reading.page_id) +
-                                  ")\n                    "
+                                  "\n                    "
                               )
                             ]
                           },
@@ -1043,9 +1110,28 @@ var render = function() {
           ),
           _vm._v(" "),
           _c(
-            "v-btn",
-            { attrs: { text: "" } },
-            [_c("v-icon", [_vm._v("add")]), _vm._v(" ایجاد تلاوت جدید")],
+            "v-form",
+            { ref: "form" },
+            [
+              _c("v-text-field", {
+                attrs: {
+                  "prepend-icon": "add",
+                  label: "تلاوت جدید",
+                  flat: "",
+                  clearable: "",
+                  rules: [_vm.rules.required],
+                  loading: _vm.isAdding
+                },
+                on: { "click:prepend": _vm.addReading },
+                model: {
+                  value: _vm.newReading,
+                  callback: function($$v) {
+                    _vm.newReading = $$v
+                  },
+                  expression: "newReading"
+                }
+              })
+            ],
             1
           )
         ],
@@ -1057,6 +1143,16 @@ var render = function() {
       _c(
         "v-card-actions",
         [
+          _c(
+            "v-btn",
+            { attrs: { color: "secondary", text: "" } },
+            [
+              _c("v-icon", [_vm._v("settings")]),
+              _vm._v("\n            مدیریت تلاوت ها\n        ")
+            ],
+            1
+          ),
+          _vm._v(" "),
           _c("div", { staticClass: "flex-grow-1" }),
           _vm._v(" "),
           _c(
@@ -2119,8 +2215,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vuetify_lib_components_VBtn__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vuetify/lib/components/VBtn */ "./node_modules/vuetify/lib/components/VBtn/index.js");
 /* harmony import */ var vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vuetify/lib/components/VCard */ "./node_modules/vuetify/lib/components/VCard/index.js");
 /* harmony import */ var vuetify_lib_components_VDivider__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vuetify/lib/components/VDivider */ "./node_modules/vuetify/lib/components/VDivider/index.js");
-/* harmony import */ var vuetify_lib_components_VIcon__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! vuetify/lib/components/VIcon */ "./node_modules/vuetify/lib/components/VIcon/index.js");
-/* harmony import */ var vuetify_lib_components_VRadioGroup__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! vuetify/lib/components/VRadioGroup */ "./node_modules/vuetify/lib/components/VRadioGroup/index.js");
+/* harmony import */ var vuetify_lib_components_VForm__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! vuetify/lib/components/VForm */ "./node_modules/vuetify/lib/components/VForm/index.js");
+/* harmony import */ var vuetify_lib_components_VIcon__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! vuetify/lib/components/VIcon */ "./node_modules/vuetify/lib/components/VIcon/index.js");
+/* harmony import */ var vuetify_lib_components_VRadioGroup__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! vuetify/lib/components/VRadioGroup */ "./node_modules/vuetify/lib/components/VRadioGroup/index.js");
+/* harmony import */ var vuetify_lib_components_VTextField__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! vuetify/lib/components/VTextField */ "./node_modules/vuetify/lib/components/VTextField/index.js");
 
 
 
@@ -2150,7 +2248,9 @@ var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_
 
 
 
-_node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_3___default()(component, {VBtn: vuetify_lib_components_VBtn__WEBPACK_IMPORTED_MODULE_4__["VBtn"],VCard: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_5__["VCard"],VCardActions: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_5__["VCardActions"],VCardText: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_5__["VCardText"],VCardTitle: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_5__["VCardTitle"],VDivider: vuetify_lib_components_VDivider__WEBPACK_IMPORTED_MODULE_6__["VDivider"],VIcon: vuetify_lib_components_VIcon__WEBPACK_IMPORTED_MODULE_7__["VIcon"],VRadio: vuetify_lib_components_VRadioGroup__WEBPACK_IMPORTED_MODULE_8__["VRadio"],VRadioGroup: vuetify_lib_components_VRadioGroup__WEBPACK_IMPORTED_MODULE_8__["VRadioGroup"]})
+
+
+_node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_3___default()(component, {VBtn: vuetify_lib_components_VBtn__WEBPACK_IMPORTED_MODULE_4__["VBtn"],VCard: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_5__["VCard"],VCardActions: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_5__["VCardActions"],VCardText: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_5__["VCardText"],VCardTitle: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_5__["VCardTitle"],VDivider: vuetify_lib_components_VDivider__WEBPACK_IMPORTED_MODULE_6__["VDivider"],VForm: vuetify_lib_components_VForm__WEBPACK_IMPORTED_MODULE_7__["VForm"],VIcon: vuetify_lib_components_VIcon__WEBPACK_IMPORTED_MODULE_8__["VIcon"],VRadio: vuetify_lib_components_VRadioGroup__WEBPACK_IMPORTED_MODULE_9__["VRadio"],VRadioGroup: vuetify_lib_components_VRadioGroup__WEBPACK_IMPORTED_MODULE_9__["VRadioGroup"],VTextField: vuetify_lib_components_VTextField__WEBPACK_IMPORTED_MODULE_10__["VTextField"]})
 
 
 /* hot reload */
